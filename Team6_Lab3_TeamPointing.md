@@ -9,19 +9,9 @@ Lab 3 Team Pointing
    *   Joel Henry
    *   Jitesh Mullapudi
    *   Daniel Williams
-   * Link to Zoom recording of team activity: 
+   * Link to Zoom recording of team activity: https://drive.google.com/drive/folders/1LHu1W1pkK-7yRveVWdTvc7Z6ud_eFJhr?usp=sharing
 
 Planning Poker: 1, 2, 3, 5, 8, 13, 20, ?
-
-For a Moodle-type service:
-As a user, I want to upload graphs & images so that I can share them with peers.
-As an administrator, I want to introduce an anti-plagiarism tool.
-As a user, I want data visualization on Moodle, so I have better understanding of my progress.
-
-For an e-commerce service:
-As a user, I want to compare the costs and reviews of products.
-As a busy shopper, I want to check out just one item.
-As an unsatisfied customer, I want to cancel my order.
 
 ```
 User Story Card
@@ -139,7 +129,7 @@ User Story Card
 ______________________________________________________________________________
 As a 	: As an unsatisfied customer,
 I want	:  I want to cancel my order.
-So that : I get a refund
+So that : I get a refund.
 
 Assumptions:
 If sent, cannot cancel the order
@@ -153,7 +143,7 @@ Level	: 5
 Acceptance Criteria
 Given	: 	I have made an order previously and I am on order page
 When 	: 	I click 'cancel order button'
-Then 	: 	The item is nnot shipped and the money is refunded.
+Then 	: 	The item is not shipped and the money is refunded.
 ____________________________________________________________________________
 
 ```
