@@ -17,17 +17,27 @@ Day/Time of Weekly Team Meeting: Wednesdays 6 pm MDT-USA / 7 pm CDT-USA / 8am CS
 
 Vision statement: Connect through messaging
 
-Motivation: Collaborating to learn new tools and processes ( HTML, Javascript, Python, SQL, network traffic )
+Motivation:
+- Create a means of exchanging messages between users
+- Collaborating to learn new tools and processes ( HTML, Javascript, Python, SQL, network traffic )
+- Simple MVP with flexibility to add incremental features
 
 Risks to project completion, possibly including:
-  no prior experience working with these team members
-  no prior experience working with network traffic
-  scope creep
+- No prior experience working with these team members
+- Minimal experience working with network traffic
+- Scope creep
   
-Mitigation Strategy for above risks
+Mitigation Strategy for above risks:
+- Using Agile, Scrum, Discord, scheduled meetings, communication structures
+- At least one team member with some experience with network traffic
+- Use Python libraries
+- Focus on MVP first before additional features
 
-Development method: Agile / Scrum with 1 week sprints (with specifics!)
-
-Project Tracking Software link (Trello)
-
-[Make sure to add access for the instructor(s)]
+Development method:
+- Agile + Scrum with 1 week sprints
+- Rotating Scrum Master position
+- Rotate team members across tech stack
+- Shared GitHub repository
+- JIRA board for organization
+  link: https://undefined6.atlassian.net/jira/core/projects/MA/board?groupBy=status
+- Discord for communication
