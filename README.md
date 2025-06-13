@@ -35,6 +35,7 @@ Mitigation Strategy for above risks:
 
 Development method:
 - Agile + Scrum with 1 week sprints
+- Asyncronous check-in via Discord over weekends
 - Rotating Scrum Master position
 - Rotate team members across tech stack
 - Shared GitHub repository
