@@ -7,11 +7,13 @@ https://flask-socketio.readthedocs.io/en/latest/getting_started.html
 
 It looks like in Week 6 we're doing a flask tutorial as a lab, so it's probably better to just do that instead of the 'official' tutorial. However, the bit about flask-socketio will be unique to our application since that's how flask sets up WebSockets (see below), so if you're comfortable with basic backend stuff have a look at that.  
 
-Installations:
-- pip install Flask
-- pip install flask-socketio
+[Demo video](https://drive.google.com/file/d/1p3qomztSkNgYk5gteBOj5wfa3q-isUr_/view?usp=sharing)
 
-It's a good idea to set up a virtual environment. [This link] (https://flask.palletsprojects.com/en/stable/installation/) shows how. 
+Installations:
+- ```pip install Flask```
+- ```pip install flask-socketio```
+
+It's a good idea to set up a virtual environment. [This link](https://flask.palletsprojects.com/en/stable/installation/) shows how. 
 
 First time around you need to initialize the database (for the blog part of the tutorial, which I kept in this prototype since it implements login/authorization):
 ```flask --app flaskr init_db```
