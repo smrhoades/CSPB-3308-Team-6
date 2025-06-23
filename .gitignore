@@ -3,6 +3,8 @@
 *.pyc
 __pycache__/
 
+backend-research
+
 instance/
 
 .pytest_cache/
