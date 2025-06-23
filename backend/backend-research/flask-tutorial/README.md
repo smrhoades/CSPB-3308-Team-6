@@ -16,7 +16,7 @@ Installations:
 It's a good idea to set up a virtual environment. [This link](https://flask.palletsprojects.com/en/stable/installation/) shows how. 
 
 First time around you need to initialize the database (for the blog part of the tutorial, which I kept in this prototype since it implements login/authorization):
-```flask --app flaskr init_db```
+```flask --app flaskr init-db```
 
 After that you do
 ```python run.py```
