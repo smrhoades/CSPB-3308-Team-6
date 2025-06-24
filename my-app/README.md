@@ -1,12 +1,21 @@
-# React + Vite
+So far, this section is a proof-of-concept for the frontend consisting of just a dummy login page. To run this on your local machine, follow these instructions:
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Run the following commands to clone our repository, navigate to the my-app directory, and install dependencies (React):
 
-Currently, two official plugins are available:
+(note: you may have to install npm if you haven't already. This is the package manager for node)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+git clone git@github.com:smrhoades/CSPB-3308-Team-6.git
+cd CSPB-3308-Team-6/my-app
+npm install
 
-## Expanding the ESLint configuration
+To run the app in dev mode, use the following command:
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+npm run dev
+
+This starts running the server locally. In your CLI you will see the URL you should use. Something like:
+
+Local: http://localhost:5173/
+
+Copy+Paste this into your browser and the login page should be visible! It doesn't do anything yet, but the bones are there.
+
+To shut the local server down, just hit q and enter inside the CLI.
