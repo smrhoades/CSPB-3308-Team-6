@@ -80,49 +80,57 @@ User Stories for Messaging App
 	• Effort Level: 2
 
 	• Acceptance Criteria
-		Given:	
-		When:	
-		Then:	
+		Given:	I want to sign out of the application.
+		When:	I click the logout button.
+		Then:	The server is notified and I am redirected to the landing page.
 
 9. Database for Messages - Must Have
-	• 
+	• As a user
+	• I want to view messages that have already been sent/received
+	• So that I can see chat history
 
-	• Effort Level: 
+	• Effort Level: 5
 
 	• Acceptance Criteria
-		Given:	
-		When:	
-		Then:	
+		Given:	I have already sent and/or received messages
+		When:	I open a conversation
+		Then:	The server sends and the front end displays the message history with that contact
 
 10. Database for Contacts - Must Have
-	• 
+	• As a user
+	• I want to view my contacts that have already been added
+	• So that I can view our chat history and send additional messages
 
-	• Effort Level: 
+	• Effort Level: 3
 
 	• Acceptance Criteria
-		Given:	
-		When:	
-		Then:	
+		Given:	I already have 1 or more contacts
+		When:	I open my address book
+		Then:	The server sends and the front end displays a list of my contacts
 
 11. Start a conversation - Must Have
-	• 
+	• As a user
+	• I want to start a conversation with an existing contact
+	• So that I can send and receive messages with them
 
-	• Effort Level: 
+	• Effort Level: 8
 
 	• Acceptance Criteria
-		Given:	
-		When:	
-		Then:
+		Given:	I have an eixsting contact with no message history
+		When:	I click to send them a message
+		Then:	The server starts a web socket connection with the contact and the front end displays the conversation page
 
 12. Verify new username does not already exist - Must Have
-	• 
+	• As a user
+	• I want to select login credentials
+	• So that I can use the rest of the app
 
-	• Effort Level: 
+	• Effort Level: 2
 
 	• Acceptance Criteria
-		Given:	
-		When:	
-		Then:
+		Given:	I have supplied a potential username
+		When:	I click to check if the username is available
+		Then:	The server verifies whether the username is available in the credentials database and notifies me of the result
 
 
 POTENTIAL ADD-ONS:
