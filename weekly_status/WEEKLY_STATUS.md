@@ -13,3 +13,4 @@ What we're working on
 - implementing more user stories
 - tutorials for testing frameworks
 
+![Jira screenshot](jira_snapshot_week6.png)
