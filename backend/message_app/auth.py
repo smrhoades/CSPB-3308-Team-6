@@ -52,13 +52,19 @@ def login():
 
 		if user is None:
 			error = 'Incorrect username.'
+			return {
+				'error': error
+				}
 		elif not check_password_hash(user['password'], password):
 			error = 'Incorrect password.'
+			return {
+				'error': error
+				}
 
 		if error is None:
 			session.clear()
 			session['user_id'] = user['id']
-			return redirect(url_for('index'))
+			return session
 
 		flash(error)
 
