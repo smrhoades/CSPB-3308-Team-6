@@ -42,8 +42,8 @@ def register():
 @bp.route('/login', methods=('GET', 'POST'))
 def login():
 	if request.method == 'POST':
-		username = request.form['username']
-		password = request.form['password']
+		username = request.json['username']
+		password = request.json['password']
 		db = get_db()
 		error = None
 		user = db.execute(
@@ -64,7 +64,9 @@ def login():
 		if error is None:
 			session.clear()
 			session['user_id'] = user['id']
-			return session
+			return {
+				'status': 'success'
+				}
 
 		flash(error)
 
