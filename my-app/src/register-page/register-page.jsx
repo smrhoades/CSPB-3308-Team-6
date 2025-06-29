@@ -1,14 +1,14 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import './login-page.css'
+import './register-page.css'
 
-function LoginPage() {
+function RegisterPage() {
     const [username, setUsername] = useState('')
     const [password, setPassword] = useState('')
     const [error, setError] = useState('')
     const navigate = useNavigate()
 
-    const handleLogin = async () => {
+    const handleRegister = async () => {
     const requestBody = JSON.stringify({username, password})
     console.log(requestBody)                                    // for testing
     try {
@@ -24,10 +24,9 @@ function LoginPage() {
         console.log(data)                                       // for testing
 
         if (data.success) {                                     
-            navigate('/contacts-list')                          // if successful, display the contacts-list page
+            navigate('/login')                                  // if successful, return to login page
         } else {            
-            setError(`Login error with msg: ${data.message}`)   // Flask should tell us here that the credentials and invalid
-            console.log(data)                                   // for testing - this shows us Flask's response
+            setError(`Register error with msg: ${data.message}`)// Flask should tell us here that the credentials are invalid and why
         }
     } catch (err) {
         setError('Server Error: no response from Flask')
@@ -37,8 +36,8 @@ function LoginPage() {
 
     return (
         <div className="center-box">
-            <h1>Welcome!</h1>
-            <form onSubmit={(e) => {e.preventDefault(); handleLogin(); }}>
+            <h1>Register Here</h1>
+            <form onSubmit={(e) => {e.preventDefault(); handleRegister(); }}>
                 <label>username</label>
                 <br />
                 <input id="username-input" className="login-input" value={username} onChange={(e) => setUsername(e.target.value)} />
@@ -47,14 +46,11 @@ function LoginPage() {
                 <br />
                 <input id="password-input" className="login-input" value={password} onChange={(e) => setPassword(e.target.value)} type="password"/>
                 <br />
-                <button type ="submit" onClick={handleLogin}>login</button>
+                <button type ="submit" onClick={handleRegister}>register</button>
                 <br />
-                <Link to="/register">
-                    <button>need to register?</button>
-                </Link>
             </form>
         </div>
     )
 }
 
-export default LoginPage
+export default RegisterPage
