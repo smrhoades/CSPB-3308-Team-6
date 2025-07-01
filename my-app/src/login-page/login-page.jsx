@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import './login-page.css'
 
+// spatch = "http://127.0.0.1:5000/login"
+
 function LoginPage() {
     const [username, setUsername] = useState('')
     const [password, setPassword] = useState('')
@@ -12,7 +14,7 @@ function LoginPage() {
     const requestBody = JSON.stringify({username, password})
     console.log(requestBody)                                    // for testing
     try {
-        const response = await fetch('/api/endpoint',           // placeholder - should be our file structure or a proxy if we are testing
+        const response = await fetch('http://127.0.0.1:5000/auth/login',           // placeholder - should be our file structure or a proxy if we are testing
         {
             method: 'POST',                                     
             headers: { 'Content-Type': 'application/json' },    // this is for Flask to understand that the request is a json

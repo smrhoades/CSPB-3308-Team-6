@@ -1,7 +1,7 @@
 import functools
 
 from flask import (
-	Blueprint, flash, g, redirect, render_template, request, session, url_for
+	Blueprint, flash, g, redirect, render_template, request, session, url_for, make_response
 )
 
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -64,9 +64,8 @@ def login():
 		if error is None:
 			session.clear()
 			session['user_id'] = user['id']
-			return {
-				'status': 'success'
-				}
+			data = {'status': 'success'}
+			return make_response(data)
 
 @bp.before_app_request
 def load_logged_in_usr():
