@@ -25,11 +25,26 @@
 		function sendMessage() {
 			var input = document.getElementById('messageInput');
 			console.log("Sending message: " + input.value)
+            saveMessageToDb(input.value)
 			if (input.value.trim() !== '') {
 				socket.emit('message', {data: input.value}, broadcast=true);
 				input.value = '';
 			}
 		}
+        
+        function saveMessageToDb(msg) {
+            //TODO make it grab the correct ids
+            sender = 1 //current_user.userId
+            receiver = 2 //contact.userId
+            now = new Date()
+            
+            // Create SQL command
+            sql = "INSERT INTO message_data " + 
+                "VALUES ("+sender+","+receiver+",'"+msg+"',"+now+")";
+            
+            //TODO make it actually write into DB
+            console.log("Save to DB:" + sql)
+        }
 		
 		// Listen for messages from server
 		socket.on('message', function(data) {
