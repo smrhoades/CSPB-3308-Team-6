@@ -33,7 +33,7 @@
 		
 		// Listen for messages from server
 		socket.on('message', function(data) {
-			console.log("Recieved message: " + data.data)
+			console.log("Received message: " + data.data)
 			var messages = document.getElementById('messages');
 			messages.innerHTML += '<div>' + data.data + '</div>';
 		});
