@@ -11,7 +11,7 @@ from flask import Flask
 from flask_cors import CORS
 from flask_socketio import SocketIO
 
-socketio = SocketIO()
+socketio = SocketIO(logger=True, engineio_logger=True)
 
 def create_app(test_config=None):
     # create and configure the app
