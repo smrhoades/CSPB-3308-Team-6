@@ -1,7 +1,7 @@
 import functools
 
 from flask import (
-	Blueprint, flash, g, redirect, render_template, request, session, url_for
+	Blueprint, flash, g, redirect, render_template, request, session, url_for, make_response
 )
 
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -42,8 +42,8 @@ def register():
 @bp.route('/login', methods=('GET', 'POST'))
 def login():
 	if request.method == 'POST':
-		username = request.form['username']
-		password = request.form['password']
+		username = request.json['username']
+		password = request.json['password']
 		db = get_db()
 		error = None
 		user = db.execute(
@@ -52,17 +52,20 @@ def login():
 
 		if user is None:
 			error = 'Incorrect username.'
+			return {
+				'error': error
+				}
 		elif not check_password_hash(user['password'], password):
 			error = 'Incorrect password.'
+			return {
+				'error': error
+				}
 
 		if error is None:
 			session.clear()
 			session['user_id'] = user['id']
-			return redirect(url_for('index'))
-
-		flash(error)
-
-	return render_template('auth/login.html')
+			data = {'status': 'success'}
+			return make_response(data)
 
 @bp.before_app_request
 def load_logged_in_usr():

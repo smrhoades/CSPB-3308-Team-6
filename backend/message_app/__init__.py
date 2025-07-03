@@ -8,6 +8,7 @@
 import os
 
 from flask import Flask
+from flask_cors import CORS
 from flask_socketio import SocketIO
 
 socketio = SocketIO()
@@ -17,8 +18,12 @@ def create_app(test_config=None):
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_mapping(
         SECRET_KEY='dev',
-        DATABASE=os.path.join(app.instance_path, 'flaskr.sqlite'),
+        DATABASE=os.path.join(app.instance_path, 'messenger_app.sqlite'),
     )
+
+    # Allow requests from React
+    CORS(app, origins=["http://localhost:5173"])
+    print("CORS configured")
 
     if test_config is None:
         # load the instance config, if it exists, when not testing
@@ -41,8 +46,8 @@ def create_app(test_config=None):
     # socketio 
     socketio.init_app(app)
 
-    from . import db
-    db.init_app(app)
+    # from . import db
+    # db.init_db()
 
     from . import auth
     app.register_blueprint(auth.bp)

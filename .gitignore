@@ -6,6 +6,8 @@ __pycache__/
 backend-research
 
 instance/
+!instance/messenger_app.sqlite
+!instance/create_messenger_app.py
 
 .pytest_cache/
 .coverage
