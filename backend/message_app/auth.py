@@ -3,7 +3,7 @@ import functools
 from flask import (
 	Blueprint, flash, g, redirect, render_template, request, session, url_for, make_response
 )
-
+from http import HTTPStatus
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from message_app.db import get_db
@@ -13,11 +13,12 @@ bp = Blueprint('auth', __name__, url_prefix='/auth')
 @bp.route('/register', methods=('GET', 'POST'))
 def register():
 	if request.method == 'POST':
-		username = request.form['username']
-		password = request.form['password']
+		username = request.json['username']
+		password = request.json['password']
 		db = get_db()
 		error = None
 
+		# React should ensure that empty username and passwords aren't sent?
 		if not username:
 			error = 'Username is required.'
 		elif not password:
@@ -31,13 +32,20 @@ def register():
 				)
 				db.commit()
 			except db.IntegrityError:
+				# Undo changes so that db gets back to consistent state
+				db.rollback()
 				error = f"User {username} is already registered."
-			else:
-				return redirect(url_for("auth.login"))
-
-		flash(error)
-
-	return render_template('auth/register.html')
+				data = {'error': error}
+				# send 409 status code
+				return make_response(data, HTTPStatus.CONFLICT)
+				
+		else:
+				# React should ensure that empty username and passwords aren't sent?
+				data = {'error': error}
+				return make_response(data)
+		
+	data = {'status': 'success'}
+	return make_response(data)
 
 @bp.route('/login', methods=('GET', 'POST'))
 def login():
@@ -52,14 +60,12 @@ def login():
 
 		if user is None:
 			error = 'Incorrect username.'
-			return {
-				'error': error
-				}
+			data = {'error': error}
+			return make_response(data, HTTPStatus.CONFLICT)
 		elif not check_password_hash(user['password'], password):
 			error = 'Incorrect password.'
-			return {
-				'error': error
-				}
+			data = {'error': error}
+			return make_response(data, HTTPStatus.CONFLICT)
 
 		if error is None:
 			session.clear()
