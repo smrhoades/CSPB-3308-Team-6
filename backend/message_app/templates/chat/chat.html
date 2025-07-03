@@ -11,8 +11,8 @@
 
 	<!-- Load Socket.IO Library -->
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
-
 	<script type="text/javascript">
+                
 		// Establish a WebSocket connection btwn browser and server
 		var socket = io();
 
@@ -20,20 +20,39 @@
 		socket.on('connect', function() {
 			socket.emit('connection event', {data: 'I\'m connected!'});
 		});
-		
+        		
+		// Send message, then reset form when message is sent
 		function sendMessage() {
 			var input = document.getElementById('messageInput');
+			console.log("Sending message: " + input.value)
+            saveMessageToDb(input.value)
 			if (input.value.trim() !== '') {
-				socket.emit('message', {data: input.value});
+				socket.emit('message', {data: input.value}, broadcast=true);
 				input.value = '';
 			}
 		}
+        
+        function saveMessageToDb(msg) {
+            //TODO make it grab the correct ids
+            sender = 1 //current_user.userId
+            receiver = 2 //contact.userId
+            now = new Date()
+            
+            // Create SQL command
+            sql = "INSERT INTO message_data " + 
+                "VALUES ("+sender+","+receiver+",'"+msg+"',"+now+")";
+            
+            //TODO make it actually write into DB
+            console.log("Save to DB:" + sql)
+        }
 		
 		// Listen for messages from server
 		socket.on('message', function(data) {
+			console.log("Received message: " + data.data)
 			var messages = document.getElementById('messages');
 			messages.innerHTML += '<div>' + data.data + '</div>';
 		});
 
 	</script>
+
 {% endblock %}

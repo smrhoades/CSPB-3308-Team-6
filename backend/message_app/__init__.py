@@ -10,12 +10,14 @@ import os
 from flask import Flask
 from flask_cors import CORS
 from flask_socketio import SocketIO
+from message_app.prefix import PrefixMiddleware
 
-socketio = SocketIO()
+socketio = SocketIO(logger=True, engineio_logger=True)
 
 def create_app(test_config=None):
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)
+    PrefixMiddleware(app)
     app.config.from_mapping(
         SECRET_KEY='dev',
         DATABASE=os.path.join(app.instance_path, 'messenger_app.sqlite'),
@@ -37,6 +39,8 @@ def create_app(test_config=None):
         os.makedirs(app.instance_path)
     except OSError:
         pass
+    
+    print("App config" + str(app.config))
 
     # a simple page that says hello
     @app.route('/hello')
