@@ -1,10 +1,3 @@
-# This file does double duty:
-#   1) Contains the application factory (the function that 
-#   does any configuration, registration, and other setup
-#   the application needs)
-#   2) it tells Python that the flaskr dir should be 
-#   treated as a package. 
-
 import os
 
 from flask import Flask
@@ -55,14 +48,6 @@ def create_app(test_config=None):
 
     from . import auth
     app.register_blueprint(auth.bp)
-
-    # from . import blog
-    # app.register_blueprint(blog.bp)
-    # app.add_url_rule('/', endpoint='index')
-    
-    from . import home
-    app.register_blueprint(home.bp)
-    app.add_url_rule('/', endpoint='index')
 
     from . import chat
     app.register_blueprint(chat.bp)

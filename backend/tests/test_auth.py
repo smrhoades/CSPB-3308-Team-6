@@ -4,11 +4,11 @@ from flask import g, session
 from message_app.db import get_db
 
 def test_register(client, app):
-    assert client.get('/auth/register').status_code == 200
     response = client.post(
-        '/auth/register', data={'username': 'a', 'password': 'a'}
+        '/auth/register', json={'username': 'a', 'password': 'a'}
     )
-    assert response.headers["Location"] == "/auth/login"
+    assert response.headers["Access-Control-Allow-Origin"] == "http://localhost:5173"
+    assert 'success' in response.json['status']
 
     with app.app_context():
         assert get_db().execute(
@@ -16,23 +16,20 @@ def test_register(client, app):
         ).fetchone() is not None
 
 @pytest.mark.parametrize(('username', 'password', 'status_code', 'message'), (
-    ('', '', HTTPStatus.OK, b'Username is required.'),
-    ('a', '', HTTPStatus.OK, b'Password is required.'),
-    ('test', 'test', HTTPStatus.CONFLICT, b'already registered')
+    ('', '', HTTPStatus.OK, 'Username is required.'),
+    ('a', '', HTTPStatus.OK, 'Password is required.'),
+    ('test', 'test', HTTPStatus.CONFLICT, 'already registered')
 ))
 def test_register_validate_input(client, username, password, status_code, message):
     response = client.post(
         '/auth/register',
-        data={'username': username, 'password': password}
+        json={'username': username, 'password': password}
     )
     assert response.status_code == status_code
-    assert message in response.data
+    assert message in response.json['error']
 
 def test_login(client, auth):
-    assert client.get('/auth/login').status_code == 200
-    response = auth.login()
-    assert response.headers["Location"] == "/"
-
+    auth.login()
     with client:
         client.get('/')
         assert session['user_id'] == 1
