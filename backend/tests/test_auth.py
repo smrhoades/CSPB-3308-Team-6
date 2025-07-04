@@ -1,4 +1,5 @@
 import pytest
+from http import HTTPStatus
 from flask import g, session
 from message_app.db import get_db
 
@@ -14,16 +15,17 @@ def test_register(client, app):
             "SELECT * FROM user WHERE username = 'a'",
         ).fetchone() is not None
 
-@pytest.mark.parametrize(('username', 'password', 'message'), (
-    ('', '', b'Username is required.'),
-    ('a', '', b'Password is required.'),
-    ('test', 'test', b'already registered'),
+@pytest.mark.parametrize(('username', 'password', 'status_code', 'message'), (
+    ('', '', HTTPStatus.OK, b'Username is required.'),
+    ('a', '', HTTPStatus.OK, b'Password is required.'),
+    ('test', 'test', HTTPStatus.CONFLICT, b'already registered')
 ))
-def test_register_validate_input(client, username, password, message):
+def test_register_validate_input(client, username, password, status_code, message):
     response = client.post(
         '/auth/register',
         data={'username': username, 'password': password}
     )
+    assert response.status_code == status_code
     assert message in response.data
 
 def test_login(client, auth):
