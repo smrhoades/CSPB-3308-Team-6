@@ -12,24 +12,24 @@ function LoginPage() {
 
     const handleLogin = async () => {
     const requestBody = JSON.stringify({username, password})
-    console.log(requestBody)                                    // for testing
+    console.log(requestBody)                                                // for testing
     try {
-        const response = await fetch('http://127.0.0.1:5000/auth/login',           // placeholder - should be our file structure or a proxy if we are testing
+        const response = await fetch('http://127.0.0.1:5000/auth/login',    // placeholder
         {
             method: 'POST',                                     
-            headers: { 'Content-Type': 'application/json' },    // this is for Flask to understand that the request is a json
-            body: requestBody                                   // converts the provided username, password into a json
+            headers: { 'Content-Type': 'application/json' },                // this is for Flask to understand that the request is a json
+            body: requestBody                                               // converts the provided username, password into a json
         }
         );
 
-        const data = await response.json();                     // Flask's response will be saved in data
-        console.log(data)                                       // for testing
+        const data = await response.json();                                 // Flask's response will be saved in data
+        console.log(data)                                                   // for testing
 
-        if (data.success) {                                     
-            navigate('/contacts-list')                          // if successful, display the contacts-list page
+        if (data.status == 'success') {                                     
+            navigate('/contacts-list')                                      // if successful, display the contacts-list page
         } else {            
-            setError(`Login error with msg: ${data.message}`)   // Flask should tell us here that the credentials and invalid
-            console.log(data)                                   // for testing - this shows us Flask's response
+            setError(`Login error with msg: ${data.message}`)               // Flask should tell us here that the credentials and invalid
+            console.log(data)                                               // for testing - this shows us Flask's response
         }
     } catch (err) {
         setError('Server Error: no response from Flask')
