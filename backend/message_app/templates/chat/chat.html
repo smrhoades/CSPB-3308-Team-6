@@ -8,6 +8,7 @@
 	<div id="messages"></div>
 	<input type="text" id="messageInput" placeholder="Type a message...">
 	<button onclick="sendMessage()">Send</button>
+    <p id="received_messages"></p>
 
 	<!-- Load Socket.IO Library -->
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
@@ -25,8 +26,8 @@
 		function sendMessage() {
 			var input = document.getElementById('messageInput');
 			console.log("Sending message: " + input.value)
-            saveMessageToDb(input.value)
 			if (input.value.trim() !== '') {
+                saveMessageToDb(input.value)
 				socket.emit('message', {data: input.value}, broadcast=true);
 				input.value = '';
 			}
@@ -35,21 +36,21 @@
         function saveMessageToDb(msg) {
             //TODO make it grab the correct ids
             sender = 1 //current_user.userId
-            receiver = 2 //contact.userId
-            now = new Date()
-            
-            // Create SQL command
-            sql = "INSERT INTO message_data " + 
-                "VALUES ("+sender+","+receiver+",'"+msg+"',"+now+")";
-            
-            //TODO make it actually write into DB
-            console.log("Save to DB:" + sql)
+            receiver = 2 //contact.userId    
+            console.log("Saving to DB")
+            socket.emit('database', {data: { 
+                        message: msg, 
+                        sender: sender, 
+                        receiver: receiver 
+                        }
+                }
+            );
         }
 		
 		// Listen for messages from server
 		socket.on('message', function(data) {
 			console.log("Received message: " + data.data)
-			var messages = document.getElementById('messages');
+			var messages = document.getElementById('received_messages');
 			messages.innerHTML += '<div>' + data.data + '</div>';
 		});
 
