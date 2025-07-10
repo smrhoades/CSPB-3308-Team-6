@@ -1,11 +1,16 @@
 .venv/
 
+# Environment variables
+.env
+
 *.pyc
 __pycache__/
 
-instance/
-!instance/messenger_app.sqlite
-!instance/create_messenger_app.py
+backend-research
+
+backend/instance/*
+!backend/instance/messenger_app.sqlite
+!backend/instance/create_messenger_db.py
 
 .pytest_cache/
 .coverage
