@@ -43,8 +43,8 @@ def create_app(test_config=None):
     # socketio 
     socketio.init_app(app)
 
-    # from . import db
-    # db.init_db()
+    from . import db
+    db.init_app(app)
 
     from . import auth
     app.register_blueprint(auth.bp)

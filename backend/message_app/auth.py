@@ -5,6 +5,9 @@ from http import HTTPStatus
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from message_app.db import get_db
+from message_app.data_classes import User
+
+from sqlalchemy.exc import IntegrityError
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
@@ -23,15 +26,16 @@ def register():
 
 	if error is None:
 		try:
-			db.execute(
-				"INSERT INTO user (username, password) VALUES (?, ?)",
-				(username, generate_password_hash(password)),
+			new_user = User(
+				user_name = username,
+				user_pwd = generate_password_hash(password)
 			)
+			db.add(new_user)
 			db.commit()
 			data = {'status': 'success'}
 			return make_response(data)
 		
-		except db.IntegrityError:
+		except IntegrityError:
 			# Undo changes so that db gets back to consistent state
 			db.rollback()
 			error = f"User {username} is already registered."
@@ -50,22 +54,20 @@ def login():
 	password = request.json['password']
 	db = get_db()
 	error = None
-	user = db.execute(
-		'SELECT * FROM user WHERE username = ?', (username,)
-	).fetchone()
+	user = db.query(User).filter_by(user_name=username).first()
 
 	if user is None:
 		error = 'Incorrect username.'
 		data = {'error': error}
 		return make_response(data, HTTPStatus.CONFLICT)
-	elif not check_password_hash(user['password'], password):
+	elif not check_password_hash(user.user_pwd, password):
 		error = 'Incorrect password.'
 		data = {'error': error}
 		return make_response(data, HTTPStatus.CONFLICT)
 
 	if error is None:
 		session.clear()
-		session['user_id'] = user['id']
+		session['user_id'] = user.id
 		data = {'status': 'success'}
 		return make_response(data)
 
@@ -76,9 +78,7 @@ def load_logged_in_usr():
 	if user_id is None:
 		g.user = None
 	else:
-		g.user = get_db().execute(
-			'SELECT * FROM user WHERE id = ?', (user_id,)
-		).fetchone()
+		g.user = get_db().query(User).filter_by(id=user_id).first()
 
 @bp.route('/logout')
 def logout():

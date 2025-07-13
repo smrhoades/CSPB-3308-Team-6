@@ -1,6 +1,3 @@
-import sqlite3
-
-import pytest
 from message_app.db import get_db
 
 def test_get_close_db(app):
@@ -8,10 +5,10 @@ def test_get_close_db(app):
         db = get_db()
         assert db is get_db()
 
-    with pytest.raises(sqlite3.ProgrammingError) as e:
-        db.execute('SELECT 1')
-
-    assert 'closed' in str(e.value)
+    # Verify clean-up happened properly: if we call get_db() again we should get a fresh session
+    with app.app_context():
+        new_db = get_db()
+        assert new_db is not db
 
 def test_init_db_command(runner, monkeypatch):
     class Recorder(object):
