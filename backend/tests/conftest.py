@@ -8,11 +8,8 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from message_app import create_app
-from message_app.db import get_db, init_db
-
-
-with open(os.path.join(os.path.dirname(__file__), 'data.sql'), 'rb') as f:
-    _data_sql = f.read().decode('utf8')
+from message_app.db import init_db
+from test_data import insert_test_data
 
 @pytest.fixture
 def app():
@@ -27,7 +24,7 @@ def app():
         # set up database schema
         init_db()
         # insert testing data
-        get_db().executescript(_data_sql)
+        insert_test_data()
 
     yield app
     # everything after yield will run after the test completes

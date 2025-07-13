@@ -3,6 +3,8 @@ from http import HTTPStatus
 from flask import g, session
 from message_app.db import get_db
 
+from message_app.data_classes import User
+
 def test_register(client, app):
     response = client.post(
         '/auth/register', json={'username': 'a', 'password': 'a'}
@@ -11,9 +13,8 @@ def test_register(client, app):
     assert 'success' in response.json['status']
 
     with app.app_context():
-        assert get_db().execute(
-            "SELECT * FROM user WHERE username = 'a'",
-        ).fetchone() is not None
+        user = get_db().query(User).filter_by(user_name='a').first()
+        assert user is not None
 
 @pytest.mark.parametrize(('username', 'password', 'status_code', 'message'), (
     ('', '', HTTPStatus.OK, 'Username is required.'),

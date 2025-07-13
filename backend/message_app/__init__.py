@@ -13,7 +13,7 @@ def create_app(test_config=None):
     PrefixMiddleware(app)
     app.config.from_mapping(
         SECRET_KEY='dev',
-        DATABASE=os.path.join(app.instance_path, 'messenger_app.sqlite'),
+        DATABASE=os.path.join(app.instance_path, 'messenger.db'),
     )
 
     # Allow requests from React
