@@ -22,11 +22,6 @@ def close_db(e=None):
 		db.close()
 
 def init_db():
-	# path = current_app.config['DATABASE']
-	# engine = create_engine(f"sqlite:///messenger.db")
-	# print(f"Initializing DB to {path}")
-	# engine = create_engine(f"sqlite:///{path}")
-	# print(f"Initialized DB to {path}")
 	engine = current_app.engine
 	Base.metadata.drop_all(engine)
 	Base.metadata.create_all(engine)
