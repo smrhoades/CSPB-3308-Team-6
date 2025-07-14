@@ -2,13 +2,15 @@ from .data_classes import Base
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-
 import click
 from flask import g
+from flask import current_app
+
+from pathlib import Path
 
 def get_db():
 	if 'db' not in g:
-		engine = create_engine("sqlite:///messenger.db")
+		engine = current_app.engine
 		Session = sessionmaker(bind=engine)
 		g.db = Session()
 	return g.db
@@ -20,8 +22,12 @@ def close_db(e=None):
 		db.close()
 
 def init_db():
-	engine = create_engine("sqlite:///messenger.db")
-	# initialize clean database each time
+	# path = current_app.config['DATABASE']
+	# engine = create_engine(f"sqlite:///messenger.db")
+	# print(f"Initializing DB to {path}")
+	# engine = create_engine(f"sqlite:///{path}")
+	# print(f"Initialized DB to {path}")
+	engine = current_app.engine
 	Base.metadata.drop_all(engine)
 	Base.metadata.create_all(engine)
 		
@@ -32,5 +38,7 @@ def init_db_command():
 	click.echo('Initialized the database.')
 
 def init_app(app):
+	path = app.config['DATABASE']
+	app.engine = create_engine(f"sqlite:///{path}")
 	app.teardown_appcontext(close_db)
 	app.cli.add_command(init_db_command)
