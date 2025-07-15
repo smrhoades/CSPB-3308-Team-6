@@ -49,6 +49,9 @@ def create_app(test_config=None):
     from . import auth
     app.register_blueprint(auth.bp)
 
+    from . import contacts
+    app.register_blueprint(contacts.bp)
+
     from . import chat
     app.register_blueprint(chat.bp)
 
