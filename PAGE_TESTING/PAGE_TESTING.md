@@ -4,7 +4,8 @@
 # 1) Login/Registration Page
 
 ### Description:
-- LINK
+![Login Page](login-page.png)
+![Registration Page](registration-page.png)
 
 ### Parameters/Data:
 - JSON from Flask notifying the browser if the provided username is available for registration
