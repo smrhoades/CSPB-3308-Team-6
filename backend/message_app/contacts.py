@@ -1,13 +1,18 @@
-from flask import Blueprint, g, jsonify
+from flask import Blueprint, jsonify
 from message_app.db import get_db
 from message_app.data_classes import User, Contact, Message
 from sqlalchemy import select, or_, and_
+from flask_login import login_required, current_user
 
 bp = Blueprint('contacts', __name__)
 
 @bp.route('/contacts', methods=['GET'])
+@login_required
 def contacts():
-    user = g.user
+    # TO DO:
+    # error handling
+    # factor code blocks into functions and test
+    user = current_user
     db = get_db()
     
     # Retrieve all contacts
@@ -29,7 +34,7 @@ def contacts():
             and_(Message.user_from == Contact.user, Message.user_to == Contact.contact),
             and_(Message.user_from == Contact.contact, Message.user_to == Contact.user)
         )
-    ).where(Contact.user == 1).order_by(Message.created_at.desc()).limit(3)
+    ).where(Contact.user == current_user.id).order_by(Message.created_at.desc()).limit(3)
     results = db.execute(query).all()
     
     # Add user to contacts_data to simplify for loop
@@ -40,8 +45,8 @@ def contacts():
     for contact_row, user_row, message_row in results:
         message_data.append(
             {
-                'user_from_name': contact_lookup.get(message_row.user_from),
-                'user_to_name': contact_lookup.get(message_row.user_to),
+                'user_from_name': contact_lookup[message_row.user_from],
+                'user_to_name': contact_lookup[message_row.user_to],
                 'text': message_row.text,
                 'created_at': message_row.created_at
             }

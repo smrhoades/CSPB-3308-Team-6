@@ -3,7 +3,10 @@ import os
 from flask import Flask
 from flask_cors import CORS
 from flask_socketio import SocketIO
+from flask_login import LoginManager
 from message_app.prefix import PrefixMiddleware
+
+from sqlalchemy import select
 
 socketio = SocketIO(logger=True, engineio_logger=True)
 
@@ -15,10 +18,6 @@ def create_app(test_config=None):
         SECRET_KEY='dev',
         DATABASE=os.path.join(app.instance_path, 'messenger.db'),
     )
-
-    # Allow requests from React
-    CORS(app, origins=["http://localhost:5173"])
-    print("CORS configured")
 
     if test_config is None:
         # load the instance config, if it exists, when not testing
@@ -33,6 +32,24 @@ def create_app(test_config=None):
     except OSError:
         pass
     
+    # Allow requests from React
+    CORS(app, origins=["http://localhost:5173"])
+    # print("CORS configured")
+
+    # Initialize Flask-Login
+    login_manager = LoginManager()
+    login_manager.init_app(app)
+    login_manager.login_view = 'auth.login'
+
+    # User loader function
+    @login_manager.user_loader
+    def load_user(user_id):
+        from .data_classes import User
+        from .db import get_db
+        db = get_db()
+        return db.scalar(select(User).where(User.id == int(user_id)))
+
+
     print("App config" + str(app.config))
 
     # a simple page that says hello

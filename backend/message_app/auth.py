@@ -7,7 +7,10 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from message_app.db import get_db
 from message_app.data_classes import User
 
+from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
+
+from flask_login import login_user, logout_user
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
@@ -54,7 +57,7 @@ def login():
 	password = request.json['password']
 	db = get_db()
 	error = None
-	user = db.query(User).filter_by(user_name=username).first()
+	user = db.scalar(select(User).where(User.user_name == username))
 
 	if user is None:
 		error = 'Incorrect username.'
@@ -66,8 +69,7 @@ def login():
 		return make_response(data, HTTPStatus.CONFLICT)
 
 	if error is None:
-		session.clear()
-		session['user_id'] = user.id
+		login_user(user)
 		data = {'status': 'success'}
 		return make_response(data)
 
@@ -82,7 +84,7 @@ def load_logged_in_usr():
 
 @bp.route('/logout')
 def logout():
-	session.clear()
+	logout_user()
 	data = {'status': 'success'}
 	return make_response(data)
 
