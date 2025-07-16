@@ -37,7 +37,7 @@ def contacts():
     ).where(Contact.user == current_user.id).order_by(Message.created_at.desc()).limit(3)
     results = db.execute(query).all()
     
-    # Add user to contacts_data to simplify for loop
+    # Add current_user to contacts_data to simplify for loop
     contacts_data.append( {'contact_id': user.id, 'contact_name': user.user_name})
     contact_lookup = {contact['contact_id']: contact['contact_name'] for contact in contacts_data}
 
@@ -51,5 +51,8 @@ def contacts():
                 'created_at': message_row.created_at
             }
             )
+
+    # remove current_user from contacts_data
+    contacts_data.pop()
 
     return jsonify({'contacts_data': contacts_data, 'message_data': message_data})
