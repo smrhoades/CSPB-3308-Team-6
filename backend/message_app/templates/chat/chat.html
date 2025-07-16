@@ -8,50 +8,82 @@
 	<div id="messages"></div>
 	<input type="text" id="messageInput" placeholder="Type a message...">
 	<button onclick="sendMessage()">Send</button>
+	<input type="text" id="contactInput" placeholder="Get History with contact...">
+	<button onclick="getHistory()">Send</button>
+    <p id="received_messages"></p>
 
 	<!-- Load Socket.IO Library -->
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+	<!-- Load JQuery Library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 	<script type="text/javascript">
                 
 		// Establish a WebSocket connection btwn browser and server
 		var socket = io();
-
-		// Listen for connection; send message when connected
-		socket.on('connect', function() {
-			socket.emit('connection event', {data: 'I\'m connected!'});
-		});
         		
 		// Send message, then reset form when message is sent
 		function sendMessage() {
 			var input = document.getElementById('messageInput');
 			console.log("Sending message: " + input.value)
-            saveMessageToDb(input.value)
 			if (input.value.trim() !== '') {
+                saveMessageToDb(input.value)
 				socket.emit('message', {data: input.value}, broadcast=true);
 				input.value = '';
 			}
 		}
         
         function saveMessageToDb(msg) {
-            //TODO make it grab the correct ids
+            //TODO make it grab the correct ids for Sender and receiver
             sender = 1 //current_user.userId
-            receiver = 2 //contact.userId
-            now = new Date()
-            
-            // Create SQL command
-            sql = "INSERT INTO message_data " + 
-                "VALUES ("+sender+","+receiver+",'"+msg+"',"+now+")";
-            
-            //TODO make it actually write into DB
-            console.log("Save to DB:" + sql)
+            receiver = 2 //contact.userId    
+            console.log("Saving to DB")
+            socket.emit('database', {data: { 
+                        message: msg, 
+                        sender: sender, 
+                        receiver: receiver 
+                        }
+                }
+            );
         }
-		
-		// Listen for messages from server
+        
+        // Listen for messages from server
 		socket.on('message', function(data) {
 			console.log("Received message: " + data.data)
-			var messages = document.getElementById('messages');
+			var messages = document.getElementById('received_messages');
 			messages.innerHTML += '<div>' + data.data + '</div>';
 		});
+        
+        // Get message history, then reset form when message is retrieved
+		function getHistory() {
+			var input = document.getElementById('contactInput');
+			console.log("Getting history with contact: " + input.value)
+			if (input.value.trim() !== '') {
+                getHistoryFromDb(input.value)
+                input.value = '';
+			}
+		}
+        
+        function getHistoryFromDb(receiver) {
+            //TODO make it grab the correct ids for Sender
+            sender = 1 //current_user.userId
+            console.log("Retreiving from DB")
+            var history = $.ajax({
+                type: "POST",
+                url: "/history",
+                json: { sender: sender, receiver: receiver},
+                success: function(response) {
+                    // This function runs if success status is returned
+                    var json_history = JSON.stringify(history)
+                    console.log("Received historical messages: " + json_history)
+                    var messages = document.getElementById('received_messages');
+                    messages.innerHTML = '<div>' + json_history + '</div>';           
+                },
+                complete: function(jqXHR, textStatus) {
+                    // This function runs after success or error callbacks
+                    console.log('AJAX request completed with status:', textStatus);
+                }
+            });
+        }
 
 	</script>
 
