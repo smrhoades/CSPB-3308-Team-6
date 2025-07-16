@@ -1,7 +1,6 @@
 from sqlalchemy import select
 from message_app.db import get_db
 from message_app.data_classes import User
-from http import HTTPStatus
 
 def test_chat_url(app, client, auth):
     auth.login()
@@ -11,12 +10,12 @@ def test_chat_url(app, client, auth):
         # Chat allowed 
         contact_uuid = db.scalar(select(User.uuid).filter(User.user_name=='other'))
         response = client.get(f'/chat/{contact_uuid}')
-        assert response.status_code == HTTPStatus.OK
+        assert response.status_code == 200
         
         # Chat not allowed
         contact_uuid2 = db.scalar(select(User.uuid).filter(User.user_name=='island'))
         response = client.get(f'/chat/{contact_uuid2}')
-        assert response.status_code == HTTPStatus.FORBIDDEN
+        assert response.status_code == 403
 
 # def test_chat_page(client):
 #     # Page renders and contains static details about chat page
