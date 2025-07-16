@@ -2,11 +2,12 @@ from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy import ForeignKey
 from sqlalchemy import UniqueConstraint
 from sqlalchemy import Column, Integer, String, DateTime, func
+from flask_login import UserMixin
 
 class Base(DeclarativeBase):
     pass
 
-class User(Base):
+class User(Base, UserMixin):
     __tablename__ = 'user_data'
     id = Column(Integer, primary_key=True, autoincrement=True)
     user_name = Column(String, unique=True, nullable=False)

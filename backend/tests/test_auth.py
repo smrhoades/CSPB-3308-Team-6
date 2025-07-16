@@ -2,6 +2,7 @@ import pytest
 from http import HTTPStatus
 from flask import g, session
 from message_app.db import get_db
+from flask_login import current_user
 
 from message_app.data_classes import User
 
@@ -33,8 +34,8 @@ def test_login(client, auth):
     auth.login()
     with client:
         client.get('/')
-        assert session['user_id'] == 1
-        assert g.user.user_name == 'test'
+        assert current_user.id == 1
+        assert current_user.user_name == 'test'
 
 @pytest.mark.parametrize(('username', 'password', 'message'), (
     ('a', 'test', b'Incorrect username.'),
