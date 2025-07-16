@@ -3,13 +3,15 @@ from sqlalchemy import ForeignKey
 from sqlalchemy import UniqueConstraint
 from sqlalchemy import Column, Integer, String, DateTime, func
 from flask_login import UserMixin
+import uuid
 
 class Base(DeclarativeBase):
     pass
 
 class User(Base, UserMixin):
     __tablename__ = 'user_data'
-    id = Column(Integer, primary_key=True, autoincrement=True)
+    id = Column(Integer, primary_key=True, autoincrement=True) # Faster for JOINs
+    uuid = Column(String, unique=True, default=lambda: str(uuid.uuid4())) # For URLs
     user_name = Column(String, unique=True, nullable=False)
     user_pwd = Column(String, nullable=False)
     created_at = Column(DateTime(timezone=True), default=func.now())
