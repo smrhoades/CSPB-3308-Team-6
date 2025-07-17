@@ -12,4 +12,4 @@ What we are working on
 - completing chat page on backend
 - completing front end for contacts page
 
-[jira_week9.png](jira_week9.png)
+![jira_week9.png](jira_week9.png)
