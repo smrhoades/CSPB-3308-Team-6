@@ -21,6 +21,35 @@
 - Confirm that correct login credentials result in a redirect to the Contacts page
 
 # 2) Contact List
+### Page Title
+- Contacts
+
+### Description:
+- The Contacts page shows your recent conversations at the top (newest first) and then all of your contacts in alphabetical order
+- It also includes links to add a contact, view your profile, or log out
+![Contacts Page](contacts-page.png)
+
+### Parameters/Data:
+- **Parameters needed:** current user ID
+- **Data needed to render the page:**
+    - `recent_conversations`: an array of `{ contact_id, username, last_message_snippet, timestamp }`
+    - `contacts`: an array of `{ contact_id, username }`
+
+### Link Destinations:
+- Clicking a recent conversation or contact opens the chat page for that contact
+- “Add Contact” goes to the add-contact page
+- “Profile” goes to the profile page
+- “Logout” ends the session and returns to login
+
+### Tests:
+- Page loads and shows the “Recents” section when there are recent messages
+- Recents are sorted by timestamp (newest first)
+- Page shows “Recent” empty state message if there are no recents
+- “All Contacts” section lists every contact alphabetically
+- Page shows “No contacts” message if the list is empty
+- Clicking a contact or convo navigates to the correct chat URL
+- Nav links to add contact, profile, and logout work correctly
+- Long usernames or very large lists do not break the layout
 
 # 3) Chat
 ### Page title
@@ -56,6 +85,32 @@ Chat
 - can follow link to logout page
 
 # 4) Profile
+### Page Title
+- Profile
+
+### Description:
+- The Profile page displays your basic account information (username, email, etc...) and offers buttons to change your password or log out
+- It also has links back to Contacts and Add Contact.
+![Profile Page](profile-page.png)
+
+### Parameters/Data:
+- **Parameters needed:** current user ID
+- **Data needed to render the page:**
+    - `profile`: `{ username, email, ..., any other profile info}`
+
+### Link Destinations:
+- “Back to Contacts” goes to the contacts page
+- “Add Contact” goes to the add-contact page
+- “Change Password” goes to the password-change page
+- “Logout” ends the session and returns to login
+
+### Tests:
+- Page loads and shows the correct username, email, and signup date
+- Missing profile data shows a placeholder or friendly error
+- Change-password button opens the correct page
+- Logout button ends the session and redirects to login
+- Nav links to Contacts and Add Contact work correctly
+- Fields and buttons remain usable on mobile or with long text
 
 # 5) Create Contact
 ### Page title
