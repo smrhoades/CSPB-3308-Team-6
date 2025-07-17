@@ -1,0 +1,23 @@
+.venv/
+
+# Environment variables
+.env
+
+*.pyc
+__pycache__/
+
+backend-research
+
+backend/instance/*
+!backend/instance/messenger_app.sqlite
+!backend/instance/create_messenger_db.py
+
+.pytest_cache/
+.coverage
+htmlcov/
+
+dist/
+build/
+*.egg-info/
+
+.ipynb_checkpoints
