@@ -29,3 +29,49 @@ To run the tests, do
 
 You can run specific tests with, e.g,
 ```pytest tests/test_contacts.py```
+
+### When running in coding.csel.io environment:
+
+All of the following commands should be run while in the ```backend``` folder.
+
+1. Create a virtual environment (1st time only)
+
+```python3 -m venv .venv```
+
+2. Activate the virtual environment
+
+```. .venv/bin/activate```
+
+3. Install any packages needed
+
+```
+pip install Flask
+pip install -U flask-cors
+pip install flask-socketio
+pip install flask-login
+pip install sqlalchemy
+pip install pytest coverage
+```
+
+4. Run the backend code
+
+```python3 ./run.py --debug```
+
+5. View the backend
+
+Using page 'chat' as an example, open the address in a new tab, filling in '<$USERNAME>' with your github user name
+```https://coding.csel.io/user/<$USERNAME>/proxy/5000/chat```
+
+6. Run tests
+
+To run the tests, do
+
+```pytest```
+
+You can run specific tests with, e.g,
+
+```pytest tests/test_chat.py```
+
+7. Deactivate the virtual environment
+
+```deactivate```
