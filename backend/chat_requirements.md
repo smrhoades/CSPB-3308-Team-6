@@ -1,13 +1,15 @@
 Chat page testing/functionality requirements
 
 URL Structure:
-- '/chat/{contact_user_id}' where contact_user_id is the UUID of the user being chatted with
+- '/chat/{contact_user_id}' where contact_user_id is the UUID of the user being chatted with √
 
 Page Load ('/chat/{contact_user_id}'):
-- Verify user has permission to chat with this contact (check contacts table)
-- Load chat history (messages between current user and contact_user_id)
-- Sort messages chronologically
+- Verify user has permission to chat with this contact (check contacts table) √
+- Load chat history (messages between current user and contact_user_id) √
+- Sort messages chronologically √
 - WebSocket connection opened with room = deterministic chat room name
+    - Open WebSocket connection √
+    - Join a "room" for this specific conversation
 
 Message Sending:
 - Validate message content (non-empty, length limits)

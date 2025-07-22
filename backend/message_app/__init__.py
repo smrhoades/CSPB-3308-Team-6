@@ -8,11 +8,22 @@ from message_app.prefix import PrefixMiddleware
 
 from sqlalchemy import select
 
+# Create instance of SocketIO: not yet bound to any Flask app
+# server attribute is None b/c there is no app to serve
 socketio = SocketIO(logger=True, engineio_logger=True)
+print(f"SocketIO created at module level: {socketio}")
 
 def create_app(test_config=None):
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)
+    print(f"Flask app created: {hex(id(app))} ")
+    # Bind SocketIO instance to our app
+    #   - register SocketIO handlers with our app
+    #   - set up necessary routes for WebSocket connections
+    #   - does NOT start the server: SocketIO is configured but not running
+    socketio.init_app(app)
+    print(f"SocketIO object initialized in create_app(): {app.extensions['socketio']}")
+
     PrefixMiddleware(app)
     app.config.from_mapping(
         SECRET_KEY='dev',
@@ -52,14 +63,6 @@ def create_app(test_config=None):
 
     print("App config" + str(app.config))
 
-    # a simple page that says hello
-    @app.route('/hello')
-    def hello():
-        return 'Hello, World!'
-   
-    # socketio 
-    socketio.init_app(app)
-
     from . import db
     db.init_app(app)
 
@@ -71,9 +74,14 @@ def create_app(test_config=None):
 
     from . import chat
     app.register_blueprint(chat.bp)
-
+    
     return app
 
 if __name__ == '__main__':
     app = create_app()
+    
+    # Starts server that can handle BOTH HTTP requests and WebSocket connections
+    #  - sets socketio.server
+    #  - begins listening for connections
+    #  - blocks and runs the event loop
     socketio.run(app)

@@ -3,13 +3,14 @@ from flask_login import login_required, current_user
 from message_app.db import get_db
 from message_app.data_classes import User, Contact, Message
 from werkzeug.exceptions import abort
-from .__init__ import socketio
-from sqlalchemy import select, or_, func
+from message_app import socketio
+from sqlalchemy import select, exists, func, or_
+from flask_socketio import disconnect, emit
 
 
 bp = Blueprint('chat', __name__)
 
-# The template for the chat webpage
+# Page load and authentication
 @bp.route('/chat/<contact_uuid>', methods=['GET'])
 @login_required
 def chat(contact_uuid):
@@ -20,8 +21,88 @@ def chat(contact_uuid):
     if not contact_user:
         abort(404)
         
-    # Check if they have both added each other as contacts
-    can_chat = db.execute(
+    # Check if user has added contact to contacts
+    can_chat = db.scalar(
+        select(
+            exists().where(
+                (Contact.user == current_user.id) &
+                (Contact.contact == contact_user.id)
+                )
+            )
+        )
+    
+    if not can_chat:
+        abort(403)
+    else:
+        return jsonify({'status': 'success'})
+
+# Message history API
+@bp.route('/chat/<contact_uuid>/messages', methods=['GET'])
+@login_required
+def get_chat_messages(contact_uuid):
+    """
+    Structure of response:
+    {'messages':
+        [
+            {
+                'id': msg.id,
+                'text': msg.text,
+                'sender': {
+                    'id': msg.user_from,
+                    'username': sender_name
+                    },
+                'recipient': {
+                    'id': msg.user_from,
+                    'username': sender_name
+                },
+                'timestamp': msg.created_at.isoformat(),
+                'is_own_message': bool
+            },
+            ...
+        ]
+     'is_mutual': bool
+    """
+    db = get_db()
+    
+    contact_user = db.scalar(select(User).filter(User.uuid == contact_uuid))
+    if not contact_user:
+        abort(404)
+
+    messages = db.execute(
+        select(
+            Message,
+            User.user_name.label('sender_name')
+            )
+            .join(User, Message.user_from == User.id)
+            .where(
+                or_(
+                    (Message.user_from == current_user.id) & (Message.user_to == contact_user.id),
+                    (Message.user_from == contact_user.id) & (Message.user_to == current_user.id)
+                    )
+                )
+                .order_by(Message.created_at)
+    ).all()
+    
+    formatted_messages = []
+    for message, sender_name in messages:
+        recipient_name = db.scalar(select(User.user_name).where(User.id == message.user_to))
+        
+        formatted_messages.append({
+            "id": message.id,
+            "text": message.text,
+            "sender": {
+                "id": message.user_from,
+                "username": sender_name
+            },
+            "recipient": {
+                "id": message.user_to,
+                "username": recipient_name
+            },
+            "timestamp": message.created_at.isoformat()
+        })
+
+    # Check whether each has added the other
+    is_mutual = db.execute(
         select(func.count())
         .select_from(Contact)
         .where(
@@ -31,12 +112,22 @@ def chat(contact_uuid):
             )
         )
     ).scalar() == 2
-    
-    if not can_chat:
-        abort(403)
-    else:
-        return jsonify({'status': 'success'})
 
+    return jsonify({'messages': formatted_messages, 'is_mutual': is_mutual})
+
+
+@socketio.on('connect', namespace='/chat')
+def handle_chat_connect():
+    # The SocketIO connection inherits the authentication state from 
+    # HTTP client
+    if not current_user.is_authenticated:
+        print("Rejected unauthenticated connection")
+        return False
+    print(f"User {current_user.user_name} connected to chat namespace")
+    return True
+
+print(f"Decorator used socketio object: {socketio}")
+print(f"Socketio handlers after decoration: {socketio.handlers}")
 # @socketio.on('connect')
 # def handle_connect(message):
 #     print('Client connected!')

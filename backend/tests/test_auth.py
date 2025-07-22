@@ -33,7 +33,7 @@ def test_register_validate_input(client, username, password, status_code, messag
 def test_login(client, auth):
     auth.login()
     with client:
-        client.get('/')
+        client.get('/contacts')
         assert current_user.id == 1
         assert current_user.user_name == 'test'
 

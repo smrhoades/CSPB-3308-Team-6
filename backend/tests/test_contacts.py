@@ -13,8 +13,8 @@ def test_contacts(client, auth):
     contact2 = contacts[1]
     
     # Check that the correct contacts have been retrieved
-    assert 'other' in contact1['contact_name']
-    assert 'test2' in contact2['contact_name']
+    assert 'test2' in contact1['contact_name']
+    assert 'test3' in contact2['contact_name']
     
     # Check messages 
     messages = response.json['message_data']
