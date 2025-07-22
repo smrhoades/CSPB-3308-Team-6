@@ -5,7 +5,7 @@ from message_app.data_classes import User, Contact, Message
 from werkzeug.exceptions import abort
 from message_app import socketio
 from sqlalchemy import select, exists, func, or_
-from flask_socketio import disconnect, emit
+from flask_socketio import join_room, emit
 
 
 bp = Blueprint('chat', __name__)
@@ -118,16 +118,22 @@ def get_chat_messages(contact_uuid):
 
 @socketio.on('connect', namespace='/chat')
 def handle_chat_connect():
-    # The SocketIO connection inherits the authentication state from 
-    # HTTP client
+    # The SocketIO connection inherits the authentication state from HTTP client
     if not current_user.is_authenticated:
         print("Rejected unauthenticated connection")
         return False
     print(f"User {current_user.user_name} connected to chat namespace")
     return True
 
-print(f"Decorator used socketio object: {socketio}")
-print(f"Socketio handlers after decoration: {socketio.handlers}")
+@socketio.on('join', namespace='/chat')
+def on_join(data):
+    room = data['room']
+    join_room(room)
+    emit('room_joined', {'room': room})
+
+# print(f"Decorator used socketio object: {socketio}")
+# print(f"Socketio handlers after decoration: {socketio.handlers}")
+
 # @socketio.on('connect')
 # def handle_connect(message):
 #     print('Client connected!')
