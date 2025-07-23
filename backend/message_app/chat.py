@@ -4,8 +4,8 @@ from message_app.db import get_db
 from message_app.data_classes import User, Contact, Message
 from werkzeug.exceptions import abort
 from message_app import socketio
-from sqlalchemy import select, exists, func, or_
-from flask_socketio import join_room, emit
+from sqlalchemy import insert, select, exists, func, or_
+from flask_socketio import join_room, emit, send
 
 
 bp = Blueprint('chat', __name__)
@@ -130,6 +130,30 @@ def on_join(data):
     room = data['room']
     join_room(room)
     emit('room_joined', {'room': room})
+
+@socketio.on('json', namespace='/chat')
+def on_json(json):
+    print('received json: ' + str(json))
+    sender = current_user.user_name
+    msg = json['message']
+    recipient_user_name = json['recipient_user_name']
+
+    db = get_db()
+    recipient = db.scalar(select(User).where(User.user_name==recipient_user_name))
+    created_at = db.scalar(insert(Message).values(user_from=current_user.id,
+                                      user_to=recipient.id,
+                                      text=msg)
+                                      .returning(Message.created_at)
+    )
+    db.commit()
+    created_at = created_at.isoformat()
+
+    json['sender'] = sender
+    json['created_at'] = created_at
+    print('sending json: ' + str(json))
+    room = min(current_user.uuid+recipient.uuid, recipient.uuid+current_user.uuid)
+    send(json, broadcast=True, to=room)
+
 
 # print(f"Decorator used socketio object: {socketio}")
 # print(f"Socketio handlers after decoration: {socketio.handlers}")

@@ -69,52 +69,48 @@ def insert_contact_data():
     db.add(test_user2_contact)
     db.commit()
     
-# def insert_message_data():
-#     tm1 = Message(
-#         user_from = 1,
-#         user_to = 2,
-#         text = "message from test to test2",
-#         created_at = create_test_datetime(year=2024, month=1, day=1, hour=1, minute=0, second=0)
-#     )
+def insert_message_data():
+    tm1 = Message(
+        user_from = 1,
+        user_to = 2,
+        text = "Hello from test user!",
+        created_at = create_test_datetime(year=2025, month=1, day=1, hour=1, minute=0, second=0)
+    )
     
-#     tm2 = Message(
-#         user_from = 2,
-#         user_to = 1,
-#         text = "message from test2 to test",
-#         created_at = create_test_datetime(year=2025, month=1, day=2, hour=1, minute=0, second=0)
-#     )
+    tm2 = Message(
+        user_from = 2,
+        user_to = 1,
+        text = "Hello back from test2!",
+        created_at = create_test_datetime(year=2025, month=1, day=2, hour=1, minute=0, second=0)
+    )
     
-#     tm3 = Message(
-#         user_from = 1,
-#         user_to = 3,
-#         text = "message from test to test3",
-#         created_at = create_test_datetime(year=2025, month=1, day=3, hour=1, minute=0, second=0)
-#     )
+    tm3 = Message(
+        user_from = 1,
+        user_to = 3,
+        text = "Hello from test user to test3!",
+        created_at = create_test_datetime(year=2025, month=1, day=3, hour=1, minute=0, second=0)
+    )
     
-#     tm4 = Message(
-#         user_from = 3,
-#         user_to = 1,
-#         text = "message from test3 to test",
-#         created_at = create_test_datetime(year=2025, month=1, day=4, hour=1, minute=0, second=0)
-#     )
+    tm4 = Message(
+        user_from = 3,
+        user_to = 1,
+        text = "Hello back from test3 to test!",
+        created_at = create_test_datetime(year=2025, month=1, day=4, hour=1, minute=0, second=0)
+    )
     
-#     # Long message
-#     tm5 = Message(
-#         user_from = 1,
-#         user_to = 2,
-#         text = "long message" * 20,
-#         created_at = create_test_datetime(year=2025, month=1, day=3, hour=1, minute=0, second=0)
-#     )
+    # Long message
+    tm5 = Message(
+        user_from = 1,
+        user_to = 2,
+        text = "long message" * 20,
+        created_at = create_test_datetime(year=2025, month=1, day=5, hour=1, minute=0, second=0)
+    )
 
-#     db = get_db()
-#     db.add(tm1)
-#     db.add(tm2)
-#     db.add(tm3)
-#     db.add(tm4)
-#     db.add(tm5)
-#     db.commit()
+    db = get_db()
+    db.add_all([tm1, tm2, tm3, tm4, tm5])
+    db.commit()
     
 def insert_test_data():
     insert_user_data()
     insert_contact_data()
-    # insert_message_data()
+    insert_message_data()

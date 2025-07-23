@@ -61,7 +61,7 @@ def create_app(test_config=None):
         return db.scalar(select(User).where(User.id == int(user_id)))
 
 
-    print("App config" + str(app.config))
+    # print("App config" + str(app.config))
 
     from . import db
     db.init_app(app)

@@ -9,14 +9,14 @@ Page Load ('/chat/{contact_user_id}'):
 - Sort messages chronologically √
 - WebSocket connection opened with room = deterministic chat room name
     - Open WebSocket connection √
-    - Join a "room" for this specific conversation
+    - Join a "room" for this specific conversation √
 
 Message Sending:
 - Validate message content (non-empty, length limits)
-- Store message in database immediately (commit transaction)
-- On successful DB write: broadcast to WebSocket room
+- Store message in database immediately (commit transaction) √
+- On successful DB write: broadcast to WebSocket room √
 - On DB failure: send error response to sender
-- Include timestamp and sender info in broadcast
+- Include timestamp and sender info in broadcast √
 
 Message Receiving (via WebSocket):
 - Display message in chat interface

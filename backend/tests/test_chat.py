@@ -34,29 +34,6 @@ def test_load_chat_history(app, client, auth):
         contact_uuid = db.scalar(select(User.uuid).filter(User.user_name=='test2'))
         contact_user = db.scalar(select(User).filter(User.user_name=='test2'))
         
-        # Create test messages
-        m1 = Message(
-            user_from=current_user.id,
-            user_to=contact_user.id,
-            text="Hello from test user!",
-            created_at = create_test_datetime(year=2024, month=1, day=1, hour=1, minute=0, second=0)
-        )
-        m2 = Message(
-            user_from=contact_user.id,
-            user_to=current_user.id,
-            text="Hello back from test2!",
-            created_at = create_test_datetime(year=2025, month=1, day=1, hour=1, minute=1, second=0)
-        )
-        m3 = Message(
-            user_from=current_user.id,
-            user_to=contact_user.id,
-            text="long message"*20,
-            created_at = create_test_datetime(year=2025, month=1, day=1, hour=1, minute=2, second=0)
-        )
-        
-        db.add_all([m1, m2, m3])
-        db.commit()
-
         response = client.get(f'/chat/{contact_uuid}/messages')
         
         assert response.status_code == 200
@@ -96,44 +73,88 @@ def test_load_chat_history(app, client, auth):
         assert messages[1]['text'] == "Hello back from test2!"
         assert messages[2]['text'] == "long message"*20
         
-        # Clean up test data
-        db.delete(m1)
-        db.delete(m2)
-        db.delete(m3)
-        db.commit()
 
 def test_websocket_connect(app, client, auth):
     app_socketio = app.extensions['socketio']
-    print(f"SocketIO access in test: {app_socketio}")
-    print(f"SocketIO handlers in test: {app_socketio.handlers}")
-        
+
     # # User must be logged in to connect
     socketio_client = app_socketio.test_client(app, namespace='/chat', flask_test_client=client)
-    assert not socketio_client.is_connected()
+    try:
+        assert not socketio_client.is_connected()
 
-    auth.login()
-    
-    # After login - should be accepted
-    socketio_client = app_socketio.test_client(app, namespace='/chat', flask_test_client=client)
-    assert socketio_client.is_connected(namespace='/chat')
+        auth.login()
+
+        # After login - should be accepted
+        socketio_client_auth = app_socketio.test_client(app, namespace='/chat', flask_test_client=client)
+        assert socketio_client_auth.is_connected(namespace='/chat')
+        socketio_client_auth.disconnect(namespace='/chat')
+    finally:
+        # Ensure cleanup happens even if test fails
+        if socketio_client.is_connected(namespace='/chat'):
+            socketio_client.disconnect(namespace='/chat')
     
 def test_join_room(app, client, auth):
+    with app.app_context():
+        db = get_db()
+        test_user = db.scalar(select(User).where(User.user_name=='test'))
+        test2 = db.scalar(select(User).where(User.user_name=='test2'))
+
     auth.login()
     app_socketio = app.extensions['socketio']
     socketio_client = app_socketio.test_client(app, namespace='/chat', flask_test_client=client)
 
+    assert socketio_client.is_connected(namespace='/chat')
+
+    def create_room_name(user_uuid, contact_uuid):
+        return min(user_uuid+contact_uuid, contact_uuid+user_uuid)
+    
+    room_name = create_room_name(test_user.uuid, test2.uuid)
+
     # Emit join room event
-    socketio_client.emit('join', {'room': 'test_room'}, namespace='/chat')
+    socketio_client.emit('join', {'room': room_name}, namespace='/chat')
 
     # Check for confirmation response
     received = socketio_client.get_received(namespace='/chat')
     assert len(received) == 1
     assert received[0]['name'] == 'room_joined'
-    assert received[0]['args'][0]['room'] == 'test_room'
+    assert received[0]['args'][0]['room'] == room_name
     
-    # TO DO:
-    #  - test2 to join the same room
-    #  - need to figure out naming convention for rooms
+    # Create second client and login test2
+    client2 = app.test_client()
+    AuthActions(client2).login(username='test2', password='test2')
     
-    # Questions
-    #  how does the browser know on which page to display messages sent/received?
+    socketio_client2 = app_socketio.test_client(app, namespace='/chat', flask_test_client=client2)
+    
+    assert socketio_client2.is_connected(namespace='/chat')
+    # test2 joins same room
+    room_name = create_room_name(test2.uuid, test_user.uuid)
+    socketio_client2.emit('join', {'room': room_name}, namespace='/chat')
+    received = socketio_client2.get_received(namespace='/chat')
+    assert len(received) == 1
+    assert received[0]['name'] == 'room_joined'
+    assert received[0]['args'][0]['room'] == room_name
+    
+    # test1 sends message to test2
+    socketio_client.send({'recipient_user_name': 'test2',
+                          'message': 'Did you get my long message?'}, 
+                          json=True, namespace='/chat')
+    received = socketio_client.get_received(namespace='/chat')
+    received2 = socketio_client2.get_received(namespace='/chat')
+    assert received == received2 # message should be broadcast
+    assert len(received) == 1
+    assert received[0]['name'] == 'message'
+    assert received[0]['args']['message'] == 'Did you get my long message?'
+    assert received[0]['args']['sender'] == 'test'
+    assert received[0]['args']['recipient_user_name'] == 'test2'
+    assert len(received[0]['args']['created_at']) > 0
+    assert received[0]['namespace'] == '/chat'
+    
+    # message should be stored in db
+    with app.app_context():
+        db = get_db()
+        msg = db.scalar(select(Message).where(Message.user_from==1)
+                .where(Message.user_to==2)
+                .where(Message.text.startswith("Did you get")))
+        
+        assert msg != None
+        assert msg.created_at < datetime.now()
