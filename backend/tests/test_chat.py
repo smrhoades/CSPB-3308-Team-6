@@ -72,7 +72,6 @@ def test_load_chat_history(app, client, auth):
         assert messages[0]['text'] == "Hello from test user!"
         assert messages[1]['text'] == "Hello back from test2!"
         assert messages[2]['text'] == "long message"*20
-        
 
 def test_websocket_connect(app, client, auth):
     app_socketio = app.extensions['socketio']
