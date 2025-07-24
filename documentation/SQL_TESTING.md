@@ -53,23 +53,40 @@ timestampArray: list of timestamps cooresponding to the messages
 user_data
 
 ### Table Description
+This table contains info related to registered users of the website. 
 
 ### Table Parameters
+id: Primary Key Integer
+user_name: Unique String 
+user_pwd: string
+created_at: timestamp with timezone
+modified_at: timestamp with timezone
 
 ### List of tests for verifying each table
+- table can be created
+- entries can be CRUD'd to/from the table
+- created_at updated automatically with default value of "now"
+- when user_name or user_pwd is updated, the modified_at field is updated to "now", and created_at is not updated
 
 ### Data Access Methods
 
 #### Name
+getUser
 
 #### Description
+returns the User record corresponding to the argument passed
 
 #### Parameters
+user_param: can be either an Int corresponding to User's ID or a Str corresponding to user's user_name
 
 #### return values
+User record
 
 #### List of tests for verifying each access method
-
+- returns correct record when User ID passed
+- returns correct record when User user_name is passed
+- returns None when an Int or Str is passed that does not correspond to any id or user_name in the table
+- throws exception when Int or Str is not passed
 
 # 3) Contact Data
 
