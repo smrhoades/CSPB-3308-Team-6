@@ -77,19 +77,43 @@ user_data
 contact_data
 
 ### Table Description
+This table contains information on which users have been added to each user's contacts list as well as the time of contact creation.
 
 ### Table Parameters
+id: table index
+
+user_id: unique identifier for users
+
+contact_id: unique identifier for users (for each contact OF associated user_id)
+
+created_at: timestamp for creation of contact
 
 ### List of tests for verifying each table
+- table can be created
+
+- new valid row may be added to table (must have valid and full contents and not already exist as contact)
 
 ### Data Access Methods
 
 #### Name
+getContactsList
 
 #### Description
+Query the database and return list of user's contacts and timestamps
 
 #### Parameters
+user: id of user seeking contacts list
 
 #### return values
+contactsArray: list of contacts in order from older to newest
+
+timestampArray: list of timestamps corresponding to contact creation
 
 #### List of tests for verifying each access method
+- all contacts for user are returned
+
+- no contacts for other users are returned
+
+- both return arrays are in correct order
+
+- both return arrays are of the same length
