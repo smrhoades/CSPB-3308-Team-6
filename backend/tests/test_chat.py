@@ -30,7 +30,7 @@ def test_load_chat_history(app, client, auth):
 
         contact_uuid = db.scalar(select(User.uuid).filter(User.user_name=='test2'))
         
-        response = client.get(f'/chat/{contact_uuid}/messages')
+        response = client.get(f'/chat/{contact_uuid}')
         
         assert response.status_code == 200
         response_data = response.get_json()
@@ -158,7 +158,7 @@ def test_join_room(app, client, auth):
     socketio_client.disconnect(namespace='/chat')
     socketio_client2.disconnect(namespace='/chat')
 
-def test_message_database_failure_error_response(app, client, auth):
+def test_message_database_failure_response(app, client, auth):
     """Test that database failures during message sending result in error responses"""
     import unittest.mock
     

@@ -6,6 +6,7 @@ from werkzeug.exceptions import abort
 from message_app import socketio
 from sqlalchemy import insert, select, exists, func, or_
 from flask_socketio import join_room, emit, send
+from .decorators import contact_required
 
 
 bp = Blueprint('chat', __name__)
@@ -13,33 +14,11 @@ bp = Blueprint('chat', __name__)
 # Page load and authentication
 @bp.route('/chat/<contact_uuid>', methods=['GET'])
 @login_required
-def chat(contact_uuid):
-    db = get_db()
-    
-    # Check if contact exists
-    contact_user = db.scalar(select(User).filter(User.uuid == contact_uuid))
-    if not contact_user:
-        abort(404)
-        
-    # Check if user has added contact to contacts
-    can_chat = db.scalar(
-        select(
-            exists().where(
-                (Contact.user == current_user.id) &
-                (Contact.contact == contact_user.id)
-                )
-            )
-        )
-    
-    if not can_chat:
-        abort(403)
-    else:
-        return jsonify({'status': 'success'})
+@contact_required
+def chat(contact_uuid, contact):
+    return get_chat_messages(contact)
 
-# Message history API
-@bp.route('/chat/<contact_uuid>/messages', methods=['GET'])
-@login_required
-def get_chat_messages(contact_uuid):
+def get_chat_messages(contact):
     """
     Structure of response:
     {'messages':
@@ -63,10 +42,6 @@ def get_chat_messages(contact_uuid):
      'is_mutual': bool
     """
     db = get_db()
-    
-    contact_user = db.scalar(select(User).filter(User.uuid == contact_uuid))
-    if not contact_user:
-        abort(404)
 
     messages = db.execute(
         select(
@@ -76,8 +51,8 @@ def get_chat_messages(contact_uuid):
             .join(User, Message.user_from == User.id)
             .where(
                 or_(
-                    (Message.user_from == current_user.id) & (Message.user_to == contact_user.id),
-                    (Message.user_from == contact_user.id) & (Message.user_to == current_user.id)
+                    (Message.user_from == current_user.id) & (Message.user_to == contact.id),
+                    (Message.user_from == contact.id) & (Message.user_to == current_user.id)
                     )
                 )
                 .order_by(Message.created_at)
@@ -107,8 +82,8 @@ def get_chat_messages(contact_uuid):
         .select_from(Contact)
         .where(
             or_(
-                (Contact.user == current_user.id) & (Contact.contact == contact_user.id),
-                (Contact.user == contact_user.id) & (Contact.contact == current_user.id)
+                (Contact.user == current_user.id) & (Contact.contact == contact.id),
+                (Contact.user == contact.id) & (Contact.contact == current_user.id)
             )
         )
     ).scalar() == 2
@@ -131,8 +106,9 @@ def on_join(data):
     join_room(room)
     emit('room_joined', {'room': room})
 
+# Handler for send events
 @socketio.on('json', namespace='/chat')
-def on_json(json):
+def on_message(json):
     print('received json: ' + str(json))
     sender = current_user.user_name
     msg = json['message']
