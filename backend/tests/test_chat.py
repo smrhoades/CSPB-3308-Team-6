@@ -3,8 +3,6 @@ from message_app.db import get_db
 from message_app.data_classes import User, Message
 from datetime import datetime, timezone
 from conftest import AuthActions
-# from flask_socketio import SocketIO
-# from message_app.__init__ import socketio
 
 def create_test_datetime(year=2024, month=1, day=1, hour=1, minute=1, second=0):
     """ helper function for creating timestamps """
@@ -30,9 +28,7 @@ def test_load_chat_history(app, client, auth):
     with app.app_context():
         db = get_db()
 
-        current_user = db.scalar(select(User).filter(User.user_name=='test'))        
         contact_uuid = db.scalar(select(User.uuid).filter(User.user_name=='test2'))
-        contact_user = db.scalar(select(User).filter(User.user_name=='test2'))
         
         response = client.get(f'/chat/{contact_uuid}/messages')
         
@@ -125,6 +121,7 @@ def test_join_room(app, client, auth):
     socketio_client2 = app_socketio.test_client(app, namespace='/chat', flask_test_client=client2)
     
     assert socketio_client2.is_connected(namespace='/chat')
+    
     # test2 joins same room
     room_name = create_room_name(test2.uuid, test_user.uuid)
     socketio_client2.emit('join', {'room': room_name}, namespace='/chat')
@@ -157,3 +154,42 @@ def test_join_room(app, client, auth):
         
         assert msg != None
         assert msg.created_at < datetime.now()
+        
+    socketio_client.disconnect(namespace='/chat')
+    socketio_client2.disconnect(namespace='/chat')
+
+def test_message_database_failure_error_response(app, client, auth):
+    """Test that database failures during message sending result in error responses"""
+    import unittest.mock
+    
+    auth.login()
+    app_socketio = app.extensions['socketio']
+    socketio_client = app_socketio.test_client(app, namespace='/chat', flask_test_client=client)
+    
+    assert socketio_client.is_connected(namespace='/chat')
+    
+    with app.app_context():
+        db = get_db()
+        test_user = db.scalar(select(User).where(User.user_name=='test'))
+        test2 = db.scalar(select(User).where(User.user_name=='test2'))
+        room_name = min(test_user.uuid+test2.uuid, test2.uuid+test_user.uuid)
+        
+        # Join room first
+        socketio_client.emit('join', {'room': room_name}, namespace='/chat')
+        received = socketio_client.get_received(namespace='/chat')
+        assert len(received) == 1
+        
+        # Mock db.commit to raise an exception
+        with unittest.mock.patch.object(db, 'commit', side_effect=Exception('Database connection lost')):
+            # Attempt to send message
+            socketio_client.send({'recipient_user_name': 'test2',
+                                  'message': 'This should fail'}, 
+                                  json=True, namespace='/chat')
+            
+            # Check for error response
+            received = socketio_client.get_received(namespace='/chat')
+            assert len(received) == 1
+            assert received[0]['name'] == 'error'
+            assert 'Failed to send message' in received[0]['args'][0]['message']
+    
+    socketio_client.disconnect(namespace='/chat')

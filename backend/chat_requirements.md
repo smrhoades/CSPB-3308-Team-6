@@ -15,7 +15,7 @@ Message Sending:
 - Validate message content (non-empty, length limits)
 - Store message in database immediately (commit transaction) √
 - On successful DB write: broadcast to WebSocket room √
-- On DB failure: send error response to sender
+- On DB failure: send error response to sender √
 - Include timestamp and sender info in broadcast √
 
 Message Receiving (via WebSocket):

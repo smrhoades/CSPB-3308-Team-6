@@ -139,20 +139,27 @@ def on_json(json):
     recipient_user_name = json['recipient_user_name']
 
     db = get_db()
-    recipient = db.scalar(select(User).where(User.user_name==recipient_user_name))
-    created_at = db.scalar(insert(Message).values(user_from=current_user.id,
-                                      user_to=recipient.id,
-                                      text=msg)
-                                      .returning(Message.created_at)
-    )
-    db.commit()
-    created_at = created_at.isoformat()
+    
+    try:
+        recipient = db.scalar(select(User).where(User.user_name==recipient_user_name))
+        created_at = db.scalar(insert(Message).values(user_from=current_user.id,
+                                          user_to=recipient.id,
+                                          text=msg)
+                                          .returning(Message.created_at)
+        )
+        db.commit()
+        created_at = created_at.isoformat()
 
-    json['sender'] = sender
-    json['created_at'] = created_at
-    print('sending json: ' + str(json))
-    room = min(current_user.uuid+recipient.uuid, recipient.uuid+current_user.uuid)
-    send(json, broadcast=True, to=room)
+        json['sender'] = sender
+        json['created_at'] = created_at
+        print('sending json: ' + str(json))
+        room = min(current_user.uuid+recipient.uuid, recipient.uuid+current_user.uuid)
+        send(json, broadcast=True, to=room)
+        
+    except Exception as e:
+        # print(f'Database error when saving message: {e}')
+        db.rollback()
+        emit('error', {'message': 'Failed to send message. Please try again.'}, broadcast=False)
 
 
 # print(f"Decorator used socketio object: {socketio}")
