@@ -136,6 +136,8 @@ def on_join(data):
         The user is obtained from the request context. 
         A confirmation message is emitted after room is joined. 
     """
+    # TO DO:
+    # - should authenticate that user has permission to access the room
     room = data['room']
     join_room(room)
     emit('room_joined', {'room': room})
