@@ -4,42 +4,62 @@ from message_app.db import get_db
 from message_app.data_classes import User, Contact, Message
 from werkzeug.exceptions import abort
 from message_app import socketio
-from sqlalchemy import insert, select, exists, func, or_
+from sqlalchemy import insert, select, func, or_
 from flask_socketio import join_room, emit, send
 from .decorators import contact_required
 
-
 bp = Blueprint('chat', __name__)
 
-# Page load and authentication
 @bp.route('/chat/<contact_uuid>', methods=['GET'])
 @login_required
 @contact_required
 def chat(contact_uuid, contact):
+    """
+        Endpoint for conversation page between the client and their contact.
+        The @contact_required decorator ensures that the contact exists and has 
+        been added to the client's contacts. Moreover it retrieves the contact 
+        (as a Contact object) from the database, making it available to this 
+        function. 
+        
+        Returns message history between client and contact.
+    """
     return get_chat_messages(contact)
 
 def get_chat_messages(contact):
     """
-    Structure of response:
-    {'messages':
-        [
-            {
-                'id': msg.id,
-                'text': msg.text,
-                'sender': {
-                    'id': msg.user_from,
-                    'username': sender_name
+        Retrieves message history between current_user and provided contact. 
+        The messages are in order of creation time (earliest first)
+        
+        Notes on JSON fields:
+        The 'is_own_message' subfield of 'messages' indicates if the message 
+        originated from the client. 
+        The 'is_mutual' field is true when both the client and contact have
+        the added other as a contact. 
+    
+    Parameters
+        contact: Contact object
+    Returns JSON object:
+        {
+         'messages':
+            [
+                {
+                    'id': Message.id,
+                    'text': Message.text,
+                    'sender': {
+                        'id': Message.user_from,
+                        'username': User.user_name
+                        },
+                    'recipient': {
+                        'id': Message.user_from,
+                        'username': User.user_name
                     },
-                'recipient': {
-                    'id': msg.user_from,
-                    'username': sender_name
+                    'timestamp': Message.created_at.isoformat(),
+                    'is_own_message': bool
                 },
-                'timestamp': msg.created_at.isoformat(),
-                'is_own_message': bool
-            },
-            ...
-        ]
-     'is_mutual': bool
+                ...
+            ]
+         'is_mutual': bool
+        }
     """
     db = get_db()
 
@@ -90,10 +110,15 @@ def get_chat_messages(contact):
 
     return jsonify({'messages': formatted_messages, 'is_mutual': is_mutual})
 
-
+#------------------------------------------------------------------------------
+# Socket.IO handlers are defined in this section.
+# These functions handle events ('connect', 'join', 'json') received from React.
+#------------------------------------------------------------------------------
 @socketio.on('connect', namespace='/chat')
 def handle_chat_connect():
-    # The SocketIO connection inherits the authentication state from HTTP client
+    """
+        Allow real-time connections for logged-in users only.
+    """
     if not current_user.is_authenticated:
         print("Rejected unauthenticated connection")
         return False
@@ -102,6 +127,15 @@ def handle_chat_connect():
 
 @socketio.on('join', namespace='/chat')
 def on_join(data):
+    """
+        data is expected to be a JSON:
+            {'room': room_name}
+        where room_name is calculated in the agreed way. 
+        
+        Puts user into the room.
+        The user is obtained from the request context. 
+        A confirmation message is emitted after room is joined. 
+    """
     room = data['room']
     join_room(room)
     emit('room_joined', {'room': room})
@@ -109,6 +143,26 @@ def on_join(data):
 # Handler for send events
 @socketio.on('json', namespace='/chat')
 def on_message(json):
+    """
+        Handler for receiving messages in JSON form.
+        The receiveced JSON is expected to have the following form: 
+            {
+             'recipient_user_name': ...,
+             'message': ...
+            }
+            
+        The message is stored in the database and a JSON is broadcast to all
+        clients in the room:
+            {
+             'recipient_user_name': ...,
+             'message': ...,
+             'sender': ...,
+             'created_at': ...
+            }
+            
+        An error message is emitted if the db write fails. 
+    """
+    # TO DO: Validate message content (non-empty, length limits)
     print('received json: ' + str(json))
     sender = current_user.user_name
     msg = json['message']
@@ -133,58 +187,18 @@ def on_message(json):
         send(json, broadcast=True, to=room)
         
     except Exception as e:
-        # print(f'Database error when saving message: {e}')
+        print(f'Database error when saving message: {e}')
         db.rollback()
         emit('error', {'message': 'Failed to send message. Please try again.'}, broadcast=False)
-
-
-# print(f"Decorator used socketio object: {socketio}")
-# print(f"Socketio handlers after decoration: {socketio.handlers}")
-
-# @socketio.on('connect')
-# def handle_connect(message):
-#     print('Client connected!')
-
-# @socketio.on('message')
-# def handle_message(message):
-#     send(message, broadcast=True)
-    
-# @socketio.on('disconnect')
-# def handle_disconnect():
-#     print('Client disconnected!')
-
-# # Saving a copy of the message to the database for the message history
-# @socketio.on('database')
-# def saveMessageToDb():    
-#     #Parse and print inputs
-#     msg = data.json['message']
-#     sender = data.json['sender']
-#     receiver = data.json['receiver']
-#     now = datetime.datetime.now()
-            
-#     # Save message to database
-#     print("Save to DB")
-#     db = get_db()
-#     db.execute("INSERT INTO message_data VALUES (?, ?, ?, ?)",
-#                (sender, receiver, msg, now))
-#     db.commit()
-#     return
-
-# # Get back the message history between two users
-# @bp.route('/history', methods=['GET', 'POST'])
-# def chatGetHistoryFromDb():
-#     #Parse and print inputs
-#     data = request.get_json(silent=True)
-#     print("Request:" + str(data))
-#     sender = data['sender']
-#     receiver = data['receiver']
-            
-#     # Connect to DB and get history between two users (both message directions)
-#     print("Retreive from DB")
-#     db = get_db()
-#     messages = db.execute("SELECT * FROM message_data WHERE \
-#         (user_from = ? AND user_to = ?) OR \
-#         (user_from = ? AND user_to = ?) ORDER BY created_at", 
-#         (sender, receiver, receiver, sender)).fetchall()    
-#     return messages
-    
+        
+@socketio.on('disconnect')
+def handle_disconnect():
+    """
+        When a user navigates away, closes the tab, or loses internet connection,
+        the WebSocket connection will automatically close.
+        This handler simply prints the fact that the event happened. More useful 
+        logging can be added later. 
+        We can log things like the reason for the disconnect, the time of the 
+        disconnect ("last seen" feature), debugging info, etc. 
+    """
+    print(f'User {current_user.id} disconnect from chat')

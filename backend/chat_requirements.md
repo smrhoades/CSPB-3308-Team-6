@@ -28,11 +28,11 @@ Page Leave:
 
 Error Handling:
 - Handle WebSocket disconnections/reconnections
-- Handle database write failures
-- Handle invalid contact_user_id (404 or redirect)
+- Handle database write failures √
+- Handle invalid contact_user_id (404 or redirect) √
 
 Testing Scenarios to Consider
-- User tries to access chat with non-contact
+- User tries to access chat with non-contact 
 - WebSocket connection drops mid-conversation
 - Multiple messages sent rapidly
 - Very long messages
