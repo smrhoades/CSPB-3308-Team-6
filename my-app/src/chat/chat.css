@@ -13,7 +13,15 @@
 }
 
 #outer-box {
+    margin-top: 0.5em;
+    text-align: center;
     width: 900px;
+    overflow-y: auto;
+}
+
+#outer-box h3 {
+    position: sticky;
+    top: 0;
 }
 
 #inner-box {

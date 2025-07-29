@@ -22,7 +22,7 @@ const messagesData = [
 
 
 
-function VisualMessagesList({ conversation, user }) {
+function VisualMessagesList({ conversation=messagesData, user=currentUser }) {
     const [newMsg, setNewMsg] = useState('')
     const [error, setError] = useState('')
     const navigate = useNavigate()
@@ -56,6 +56,8 @@ function VisualMessagesList({ conversation, user }) {
 
     return (
         <>
+        <div className="center-box" id="outer-box">
+            <h3>John</h3>
             {
                 conversation.map(([id, user_from, user_to, text, created_at]) => {
                     const msg_direction = user_from === user ? 'to' : 'from'
@@ -70,19 +72,9 @@ function VisualMessagesList({ conversation, user }) {
                 <input id="message-input" className="message-input" value={newMsg} onChange={(e) => setNewMsg(e.target.value)}></input>
                 <button type="submit" onClick={handleSendMessage}>send</button>
             </form>
+        </div>
         </>
     )
 }
 
 export default VisualMessagesList
-
-/*
-TODO:
-wide message box right aligned at bottom with "send" button
-clicking send sends a json to flask and console.log()s it for verification
-add link to contact page
-
-Cut out chat from contacts page
-add text input for adding a contact
-clicking "add" button sends a json to flask
-*/

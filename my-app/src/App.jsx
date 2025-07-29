@@ -3,7 +3,7 @@ import LoginPage from './login-page/login-page.jsx'
 import RegisterPage from './register-page/register-page.jsx'
 import ContactsList from './contacts-list/contacts-list.jsx'
 import Contacts from './contacts/contacts.jsx'
-import Chat from './chat/chat.jsx'
+import VisualMessagesList from './chat/chat.jsx'
 
 function App() {
   return (
@@ -14,7 +14,7 @@ function App() {
         <Route path="/register"      element={<RegisterPage/>} />
         <Route path="/contacts-list" element={<ContactsList/>} />
         <Route path="/contacts"      element={<Contacts/>} />
-        <Route path="/chat"          element={<Chat/>} />
+        <Route path="/chat"          element={<VisualMessagesList/>} />
       </Routes>
     </BrowserRouter>
   )
