@@ -10,23 +10,24 @@ def insert_user_data():
     # Create test users
     test_user = User(
         user_name = 'test',
-        user_pwd = 'pbkdf2:sha256:50000$TCI4GzcX$0de171a4f4dac32e3364c7ddc7c14f3e2fa61f2d17574483f7ffbb431b4acb2f'
+        user_pwd = generate_password_hash('test')
     )
 
     other_user = User(
-        user_name = 'other',
-        user_pwd = 'pbkdf2:sha256:50000$kJPKsz6N$d2d4784f1b030a9761f5ccaeeaca413f27f2ecb76d6168407af962ddce849f79'
+        user_name = 'test2',
+        user_pwd = generate_password_hash('test2')
     )
 
     test_user2 = User(
-        user_name = 'test2',
-        user_pwd =  generate_password_hash('test2')
+        user_name = 'test3',
+        user_pwd =  generate_password_hash('test3')
     )
     
     test_user_island = User(
         user_name = 'island',
         user_pwd = generate_password_hash('island')
     )
+    
 
     db = get_db()
     db.add(test_user)
@@ -37,8 +38,9 @@ def insert_user_data():
     
 def insert_contact_data():
     """
-    test_user is friends with everyone
-    other_user and test_user2 are not friends with each other
+    test_user has other_user and test_user2 in contacts.
+    other_user and test_user2 do not have each other in contacts, but have test_user in contacts
+    test_user_island has no one in contacts, and no one has test_user_island in contacts. 
     """
     test_user_contact1 = Contact(
         user = 1,
@@ -68,39 +70,44 @@ def insert_contact_data():
     db.commit()
     
 def insert_message_data():
-    test_user_message_to_other = Message(
+    tm1 = Message(
         user_from = 1,
         user_to = 2,
-        text = "message from test to other",
-        created_at = create_test_datetime(year=2024, month=1, day=1, hour=1, minute=0, second=0)
+        text = "Hello from test user!",
+        created_at = create_test_datetime(year=2025, month=1, day=1, hour=1, minute=0, second=0)
     )
     
-    test_other_message_to_user = Message(
+    tm2 = Message(
         user_from = 2,
         user_to = 1,
-        text = "message from other to test",
+        text = "Hello back from test2!",
         created_at = create_test_datetime(year=2025, month=1, day=2, hour=1, minute=0, second=0)
     )
     
-    test_user_message_to_test2 = Message(
+    tm3 = Message(
         user_from = 1,
         user_to = 3,
-        text = "message from test to test2",
+        text = "Hello from test user to test3!",
         created_at = create_test_datetime(year=2025, month=1, day=3, hour=1, minute=0, second=0)
     )
     
-    test_test2_message_to_test = Message(
+    tm4 = Message(
         user_from = 3,
         user_to = 1,
-        text = "message from test2 to test",
+        text = "Hello back from test3 to test!",
         created_at = create_test_datetime(year=2025, month=1, day=4, hour=1, minute=0, second=0)
+    )
+    
+    # Long message
+    tm5 = Message(
+        user_from = 1,
+        user_to = 2,
+        text = "long message" * 20,
+        created_at = create_test_datetime(year=2025, month=1, day=5, hour=1, minute=0, second=0)
     )
 
     db = get_db()
-    db.add(test_user_message_to_other)
-    db.add(test_other_message_to_user)
-    db.add(test_user_message_to_test2)
-    db.add(test_test2_message_to_test)
+    db.add_all([tm1, tm2, tm3, tm4, tm5])
     db.commit()
     
 def insert_test_data():

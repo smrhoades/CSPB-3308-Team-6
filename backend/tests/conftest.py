@@ -11,6 +11,10 @@ from message_app import create_app
 from message_app.db import init_db
 from test_data import insert_test_data
 
+"""
+The fixtures like app, auth, client are used as arguments for test functions.
+"""
+
 @pytest.fixture
 def app():
     db_fd, db_path = tempfile.mkstemp()
@@ -57,5 +61,4 @@ class AuthActions(object):
 @pytest.fixture
 def auth(client):
     return AuthActions(client)
-
 
