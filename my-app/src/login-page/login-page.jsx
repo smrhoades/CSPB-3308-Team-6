@@ -27,6 +27,8 @@ function LoginPage() {
 
             if (data.status == 'success') {                                     
                 navigate('/contacts-list')                                      // if successful, display the contacts-list page
+                localStorage.setItem('username', username)
+                navigate('/contacts-list')
             } else {            
                 setError(`Login error with msg: ${data.message}`)               // Flask should tell us here that the credentials and invalid
                 console.log(data)                                               // for testing - this shows us Flask's response
