@@ -10,10 +10,10 @@ from .decorators import contact_required
 
 bp = Blueprint('chat', __name__)
 
-@bp.route('/chat/<contact_uuid>', methods=['GET'])
+@bp.route('/chat/<room_id>', methods=['GET'])
 @login_required
 @contact_required
-def chat(contact_uuid, contact):
+def chat(room_id, contact):
     """
         Endpoint for conversation page between the client and their contact.
         The @contact_required decorator ensures that the contact exists and has 
@@ -136,6 +136,8 @@ def on_join(data):
         The user is obtained from the request context. 
         A confirmation message is emitted after room is joined. 
     """
+    # TO DO:
+    # - should authenticate that user has permission to access the room
     room = data['room']
     join_room(room)
     emit('room_joined', {'room': room})

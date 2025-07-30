@@ -5,11 +5,20 @@ from .data_classes import User, Contact
 from .db import get_db
 from sqlalchemy import select, exists
 
+def parse_room_id(room_id):
+    print("room_id is:", room_id)
+    """ parses a room_id to and returns a tuple with current_user.uuid first """
+    if room_id[:len(current_user.uuid)] == current_user.uuid:
+        return current_user.uuid, room_id[len(current_user.uuid):]
+    else:
+        return current_user.uuid, room_id[:len(current_user.uuid)]
+
 def contact_required(f):
     @wraps(f)
-    def decorated_function(contact_uuid, *args, **kwargs):
+    def decorated_function(room_id, *args, **kwargs):
         db = get_db()
 
+        _, contact_uuid = parse_room_id(room_id)
         # Check if contact exists
         contact = db.scalar(select(User).filter(User.uuid==contact_uuid))
         if not contact:
