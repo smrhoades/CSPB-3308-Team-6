@@ -3,6 +3,7 @@ from message_app.db import get_db
 from message_app.data_classes import User, Message
 from datetime import datetime, timezone
 from conftest import AuthActions
+from flask_login import current_user
 
 def create_room_name(user_uuid, contact_uuid):
     """ helper for creating room names """
@@ -14,8 +15,12 @@ def create_test_datetime(year=2024, month=1, day=1, hour=1, minute=1, second=0):
 
 def test_socketio_handlers(app, client, auth):
     """
-        This is a very long test because I can't get multiple tests to work. 
-        So all testing of handlers is done within this function. 
+        This is a very long test because I can't establish a connection to the
+        SocketIO server when there are multiple tests. Moreover, this test must
+        be run first in the testing suite, otherwise it will fail (hence the 'a'
+        in 'test_achat.py').  
+        
+        All testing of SocketIO handlers is done within this function. 
         
         Tests:
             test_websocket_socket_nologin
@@ -168,28 +173,30 @@ def test_socketio_handlers(app, client, auth):
 #------------------------------------------------------------------------------
 
 def test_chat_url(app, client, auth):
-    auth.login()
-    with app.app_context():
+    with app.test_request_context():
+        auth.login()
         db = get_db()
-    
+        
         # Attempt to open chat with contact: 'test2'
         contact_uuid = db.scalar(select(User.uuid).filter(User.user_name=='test2'))
-        response = client.get(f'/chat/{contact_uuid}')
+        room_id = create_room_name(current_user.uuid, contact_uuid)
+        response = client.get(f'/chat/{room_id}')
         assert response.status_code == 200
         
         # Chat not allowed: 'test' does not have 'island' in contacts
         contact_uuid2 = db.scalar(select(User.uuid).filter(User.user_name=='island'))
-        response = client.get(f'/chat/{contact_uuid2}')
+        room_id2 = create_room_name(current_user.uuid, contact_uuid2)
+        response = client.get(f'/chat/{room_id2}')
         assert response.status_code == 403
 
 def test_load_chat_history(app, client, auth):
-    auth.login()
-    with app.app_context():
+    with app.test_request_context():
+        auth.login()
         db = get_db()
 
         contact_uuid = db.scalar(select(User.uuid).filter(User.user_name=='test2'))
-        
-        response = client.get(f'/chat/{contact_uuid}')
+        room_id = create_room_name(current_user.uuid, contact_uuid)
+        response = client.get(f'/chat/{room_id}')
         
         assert response.status_code == 200
         response_data = response.get_json()

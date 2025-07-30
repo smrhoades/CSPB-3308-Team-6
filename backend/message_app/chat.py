@@ -10,10 +10,10 @@ from .decorators import contact_required
 
 bp = Blueprint('chat', __name__)
 
-@bp.route('/chat/<contact_uuid>', methods=['GET'])
+@bp.route('/chat/<room_id>', methods=['GET'])
 @login_required
 @contact_required
-def chat(contact_uuid, contact):
+def chat(room_id, contact):
     """
         Endpoint for conversation page between the client and their contact.
         The @contact_required decorator ensures that the contact exists and has 
