@@ -19,6 +19,15 @@ Motivation:
 - Collaborating to learn new tools and processes ( HTML, Javascript, Python, SQL, network traffic )
 - Simple MVP with flexibility to add incremental features
 
+## Sub Reports
+
+- [Link to Page Testing](../PAGE_TESTING/PAGE_TESTING.md)
+- [Link to Database Design](../SQL_TESTING/SQL_TESTING.md)
+- [Link to Test Architecture Design](../TEST/CSPB3308_TestArchitecture.pdf)
+- [Link to Story Development](../STORIES/Messaging_App_User_Stories.md)
+- [Link to Weekly Status](../WEEKLY_STATUS/WEEKLY_STATUS.md)
+
+
 ## Final Status Report and Reflection
 
 What you completed
