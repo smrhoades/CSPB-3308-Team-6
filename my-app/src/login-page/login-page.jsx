@@ -2,13 +2,16 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import './login-page.css'
 
-// spatch = "http://127.0.0.1:5000/login"
+import { useUser } from '../UserContext.jsx' // import hook 
 
 function LoginPage() {
     const [username, setUsername] = useState('')
     const [password, setPassword] = useState('')
     const [error, setError] = useState('')
     const navigate = useNavigate()
+
+    // deconstruct UserContext to get needed functions
+    const {user, setUser, clearUser} = useUser();
 
     const handleLogin = async () => {
         const requestBody = JSON.stringify({username, password})
@@ -18,16 +21,21 @@ function LoginPage() {
             {
                 method: 'POST',                                     
                 headers: { 'Content-Type': 'application/json' },                // this is for Flask to understand that the request is a json
-                body: requestBody                                               // converts the provided username, password into a json
+                body: requestBody,                                               // converts the provided username, password into a json
+                credentials: 'include' // sends cookies so Flask can track logged-in user across requests
             }
             );
 
             const data = await response.json();                                 // Flask's response will be saved in data
             console.log(data)                                                   // for testing
 
-            if (data.status == 'success') {                                     
-                navigate('/contacts-list')                                      // if successful, display the contacts-list page
+            if (data.status == 'success') {    
+                // update UserContext with received ata
+                setUser(data.user);                                 
+                // let's redirect to '/contacts' instead: we won't worry about displaying recent messages
+                navigate('/contacts')
             } else {            
+                clearUser();
                 setError(`Login error with msg: ${data.message}`)               // Flask should tell us here that the credentials and invalid
                 console.log(data)                                               // for testing - this shows us Flask's response
             }

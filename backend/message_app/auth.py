@@ -10,7 +10,7 @@ from message_app.data_classes import User
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 
-from flask_login import login_user, logout_user
+from flask_login import login_user, logout_user, current_user
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
@@ -72,7 +72,16 @@ def login():
 
 	if error is None:
 		login_user(user)
-		data = {'status': 'success'}
+		print(f"Session ID: {session.get('_id')}")
+		print(f"Current user: {current_user}")
+		print(f"Is authenticated: {current_user.is_authenticated}")
+		data = {
+			'status': 'success',
+			'user': {
+				'username': user.user_name,
+				'uuid': user.uuid
+			}
+		}
 		return make_response(data)
 
 @bp.before_app_request

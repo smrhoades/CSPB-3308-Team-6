@@ -38,6 +38,9 @@ def test_login(client, auth):
         assert current_user.user_name == 'test'
 
 @pytest.mark.parametrize(('username', 'password', 'message'), (
+    ('test', 'test', b'success'),
+    ('test', 'test', b'test'),
+    ('test', 'test', b'uuid'),
     ('a', 'test', b'Incorrect username.'),
     ('test', 'a', b'Incorrect password.'),
 ))

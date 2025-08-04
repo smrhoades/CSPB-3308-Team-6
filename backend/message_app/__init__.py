@@ -27,6 +27,8 @@ def create_app(test_config=None):
     PrefixMiddleware(app)
     app.config.from_mapping(
         SECRET_KEY='dev',
+        SESSION_COOKIE_SAMESITE='None', # Necessary for cross-origin which we have b/c Flask/React are on different servers
+        SESSION_COOKIE_SECURE=True,    # Needs to be true: means that user data can only be sent over HTTPS
         DATABASE=os.path.join(app.instance_path, 'messenger.db'),
     )
 
@@ -44,7 +46,7 @@ def create_app(test_config=None):
         pass
     
     # Allow requests from React
-    CORS(app, origins=["http://localhost:5173"])
+    CORS(app, supports_credentials=True, origins=["http://localhost:5173"])
     # print("CORS configured")
 
     # Initialize Flask-Login
