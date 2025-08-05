@@ -1,5 +1,6 @@
 import './contacts.css'
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useUser } from '../UserContext.jsx'
 
 /*
@@ -13,12 +14,13 @@ Pattern
 
 // const contactsArray = ['John','Paul','George','Ringo'];
 
-function VisualContactsList({ contacts }) {
+function VisualContactsList({ contacts, clickHandler }) {
     return (
             <>
                 {
-                    contacts.map((contactName, index) => (
-                        <div className="contact-card" key={index}>{contactName}</div>
+                    contacts.map(contact => (
+                        <button onClick={(event) => clickHandler(contact)} className="contact-card" 
+                            key={contact.contact_uuid}>{contact.contact_name}</button>
                     ))
                 }
             </>
@@ -28,9 +30,10 @@ function VisualContactsList({ contacts }) {
 function ContactsList() {
     // hooks are called at top level of component so that the states they modify
     // persist across renders
-    const [contacts, setContacts] = useState([]);
+    const [contactsData, setContacts] = useState([]);
     const [error, setError] = useState('');
     const { user, isLoading } = useUser();
+    const navigate = useNavigate();
 
     useEffect(() => {
         getContacts();
@@ -44,15 +47,19 @@ function ContactsList() {
                 credentials: 'include'  // send cookies with the request so Flask knows User is logged-in
             });
             const data = await response.json();
-            // extract contact names from received data
-            console.log(data.contacts_data);
-            const contactNames = data.contacts_data.map(contact => contact.contact_name);
-            console.log(contactNames);
-            setContacts(contactNames);
+            const contactsData = data.contacts_data
+            setContacts(contactsData);
         }
         catch (err) {
             setError('Failed to retrieve contacts');
         }
+    }
+
+    const clickHandler = (contact) => {
+        const s1 = user.uuid+contact.contact_uuid;
+        const s2 = contact.contact_uuid+user.uuid;
+        const room_id = s1+s2 < s2+s1 ? s1+s2 : s2+s1;
+        navigate(`/chat/${room_id}`);
     }
 
     // Show loading while checking user session
@@ -69,7 +76,7 @@ function ContactsList() {
         <div className="center-box" id="outer-box">
             <h1>Welcome {user.username}!</h1>
             <h1>Contacts</h1>
-            <VisualContactsList contacts={contacts}/>
+            <VisualContactsList contacts={contactsData} clickHandler={clickHandler}/>
         </div>
     )
 }
