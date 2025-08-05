@@ -23,7 +23,8 @@ def chat(room_id, contact):
         
         Returns message history between client and contact.
     """
-    return get_chat_messages(contact)
+    resp = get_chat_messages(contact)
+    return resp
 
 def get_chat_messages(contact):
     """

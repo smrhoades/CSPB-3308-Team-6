@@ -6,7 +6,7 @@ from .db import get_db
 from sqlalchemy import select, exists
 
 def parse_room_id(room_id):
-    print("room_id is:", room_id)
+    # print("room_id is:", room_id)
     """ parses a room_id to and returns a tuple with current_user.uuid first """
     if room_id[:len(current_user.uuid)] == current_user.uuid:
         return current_user.uuid, room_id[len(current_user.uuid):]
@@ -28,10 +28,11 @@ def contact_required(f):
         can_chat = db.scalar(
             select(
                 exists().where(
-                    Contact.user == current_user.id) &
+                    (Contact.user == current_user.id) &
                     (Contact.contact == contact.id)
                 )
             )
+        )
 
         if not can_chat:
             abort(403) # or redirect to contact page
