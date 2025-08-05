@@ -10,7 +10,7 @@ from sqlalchemy import select
 
 # Create instance of SocketIO: not yet bound to any Flask app
 # server attribute is None b/c there is no app to serve
-socketio = SocketIO(logger=True, engineio_logger=True)
+socketio = SocketIO(logger=True, engineio_logger=True, cors_allowed_origins=["http://localhost:5173"])
 print(f"SocketIO created at module level: {socketio}")
 
 def create_app(test_config=None):
@@ -62,7 +62,6 @@ def create_app(test_config=None):
         db = get_db()
         return db.scalar(select(User).where(User.id == int(user_id)))
 
-
     # print("App config" + str(app.config))
 
     from . import db
@@ -80,10 +79,12 @@ def create_app(test_config=None):
     return app
 
 if __name__ == '__main__':
+    # Alternative way to run the app - creates a single SocketIO instance
+    # Prefer using: flask --app message_app run
+
     app = create_app()
-    
     # Starts server that can handle BOTH HTTP requests and WebSocket connections
     #  - sets socketio.server
     #  - begins listening for connections
     #  - blocks and runs the event loop
-    socketio.run(app)
+    socketio.run(app, debug=True)

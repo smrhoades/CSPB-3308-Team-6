@@ -80,7 +80,7 @@ function ChatContainer() {
 
 // renders everything
 function ChatInterface({ messagesData, sendHandler, user, error }) {
-    if (err) {
+    if (error) {
         return <div>{err}</div>;
     }
     else {
