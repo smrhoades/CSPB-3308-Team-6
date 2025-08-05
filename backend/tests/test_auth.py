@@ -48,6 +48,14 @@ def test_login_validate_input(auth, username, password, message):
     response = auth.login(username, password)
     assert message in response.data
 
+def test_get_current_user(auth, client):
+    response = client.get('/auth/current-user')
+    assert response.status_code == 302
+    auth.login()
+    response = client.get('/auth/current-user')
+    assert response.status_code == 200
+    assert b'test' in response.data
+
 def test_logout(client, auth):
     auth.login()
 

@@ -27,19 +27,48 @@ Notes
   any UI themselves, and "consumer" components that actually use the states.
 */
 
-import { createContext, useContext, useState } from 'react'
+import { createContext, useContext, useState, useEffect } from 'react'
 
 const UserContext = createContext();
 
 function UserData({ children }) {
     const [user, setUser] = useState({});
+    const [isLoading, setIsLoading] = useState(true); // track loading state
+
+    // Check for existing session on app startup
+    useEffect(() => {
+        const checkCurrentUser = async () => {
+            try {
+                const response = await fetch('http://127.0.0.1:5000/auth/current-user', {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include' // include session cookers
+                });
+
+                if (response.ok) {
+                    const userData = await response.json();
+                    setUser(userData); // Restore user data
+                } else {
+                    // No valid session, user stays empty
+                    console.log('No active session found');
+                }
+            } catch (err) {
+                console.log('Failed to check user session:', err);
+                // User stays empty on error
+            } finally {
+                setIsLoading(false); // Done checking
+            }
+        }
+
+        checkCurrentUser();
+    }, []); // Run once on mount
 
     const clearUser = () => {
         setUser({});
     }
 
     return (
-        <UserContext.Provider value={{ user, setUser, clearUser }}> 
+        <UserContext.Provider value={{ user, setUser, clearUser, isLoading }}> 
             {children}
         </UserContext.Provider>
     )

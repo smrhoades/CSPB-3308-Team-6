@@ -9,10 +9,6 @@ Pattern
     3. getContacts fetches data from Flask
     4. Store the fetched data in component state using useState
     5. Component re-renders with the new data
-
-TO DO:
-- User's username is not displayed in the welcome message when page is refreshed.
-
 */
 
 // const contactsArray = ['John','Paul','George','Ringo'];
@@ -34,6 +30,7 @@ function ContactsList() {
     // persist across renders
     const [contacts, setContacts] = useState([]);
     const [error, setError] = useState('');
+    const { user, isLoading } = useUser();
 
     useEffect(() => {
         getContacts();
@@ -58,7 +55,15 @@ function ContactsList() {
         }
     }
 
-    const {user, setUser, clearUser} =  useUser();
+    // Show loading while checking user session
+    if (isLoading) {
+        return <div>Loading...</div>;
+    }
+
+    // Show error if no user after loading completes
+    if (!user.username) {
+        return <div>Please log in to view contacts</div>;
+    }
 
     return (
         <div className="center-box" id="outer-box">

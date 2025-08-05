@@ -1,5 +1,5 @@
 from flask import (
-	Blueprint, g, request, session, make_response
+	Blueprint, g, request, session, make_response, jsonify
 )
 from http import HTTPStatus
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -10,7 +10,7 @@ from message_app.data_classes import User
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 
-from flask_login import login_user, logout_user, current_user
+from flask_login import login_required, login_user, logout_user, current_user
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
@@ -72,9 +72,6 @@ def login():
 
 	if error is None:
 		login_user(user)
-		print(f"Session ID: {session.get('_id')}")
-		print(f"Current user: {current_user}")
-		print(f"Is authenticated: {current_user.is_authenticated}")
 		data = {
 			'status': 'success',
 			'user': {
@@ -83,6 +80,17 @@ def login():
 			}
 		}
 		return make_response(data)
+
+@bp.route('/current-user', methods=['GET'])
+@login_required
+def get_current_user():
+    db = get_db()
+    user = db.scalar(select(User).where(User.user_name == current_user.user_name))
+    user_data = {
+        'username': user.user_name,
+        'uuid': user.uuid
+    }
+    return jsonify(user_data), 200
 
 @bp.before_app_request
 def load_logged_in_usr():
