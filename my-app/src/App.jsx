@@ -4,9 +4,9 @@ import RegisterPage from './register-page/register-page.jsx'
 import ContactsList from './contacts-list/contacts-list.jsx'
 import Contacts from './contacts/contacts.jsx'
 import ChatContainer from './chat/chat.jsx'
-
 import { UserData } from './UserContext.jsx'
 import { SocketioConnection } from './SocketioContext.jsx'
+
 
 function App() {
   // Wrap all routes in UserData context: before logging in, user object will be {}
