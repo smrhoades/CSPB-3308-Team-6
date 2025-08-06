@@ -12,6 +12,11 @@ def test_contacts(client, auth):
     contact1 = contacts[0]
     contact2 = contacts[1]
     
+    # Check that data has correct fields
+    assert 'contact_id' in contact1
+    assert 'contact_name' in contact1
+    assert 'contact_uuid' in contact1
+    
     # Check that the correct contacts have been retrieved
     assert 'test2' in contact1['contact_name']
     assert 'test3' in contact2['contact_name']

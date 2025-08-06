@@ -38,12 +38,23 @@ def test_login(client, auth):
         assert current_user.user_name == 'test'
 
 @pytest.mark.parametrize(('username', 'password', 'message'), (
+    ('test', 'test', b'success'),
+    ('test', 'test', b'test'),
+    ('test', 'test', b'uuid'),
     ('a', 'test', b'Incorrect username.'),
     ('test', 'a', b'Incorrect password.'),
 ))
 def test_login_validate_input(auth, username, password, message):
     response = auth.login(username, password)
     assert message in response.data
+
+def test_get_current_user(auth, client):
+    response = client.get('/auth/current-user')
+    assert response.status_code == 302
+    auth.login()
+    response = client.get('/auth/current-user')
+    assert response.status_code == 200
+    assert b'test' in response.data
 
 def test_logout(client, auth):
     auth.login()

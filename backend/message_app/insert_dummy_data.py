@@ -2,9 +2,10 @@ from data_classes import User, Contact, Message
 from sqlalchemy import create_engine, select
 from sqlalchemy.orm import Session
 from datetime import datetime, timezone
+from werkzeug.security import generate_password_hash
 
 """
-    Inserts test data into database.
+    Inserts dummy data into database.
 """
 
 def create_test_datetime(year=2024, month=1, day=1, hour=1, minute=1, second=0):
@@ -16,12 +17,27 @@ engine = create_engine(f"sqlite:///{path}")
 
 u1 = User(
     user_name = 'test',
-    user_pwd = 'test'
+    user_pwd = generate_password_hash('test')
 )
 
 u2 = User(
     user_name = 'test2',
-    user_pwd = 'test2'
+    user_pwd = generate_password_hash('test2')
+)
+
+u3 = User(
+    user_name = 'test3',
+    user_pwd = generate_password_hash('test3')
+)
+
+u4 = User(
+    user_name = 'test4',
+    user_pwd = generate_password_hash('test4')
+)
+
+u5 = User(
+    user_name = 'test5',
+    user_pwd = generate_password_hash('test5')
 )
 
 tm1 = Message(
@@ -55,9 +71,26 @@ c2 = Contact(
     contact = 1,
 )
 
+c3 = Contact(
+    user = 1,
+    contact = 3
+)
+
+c4 = Contact(
+    user = 1,
+    contact = 4
+)
+
+c5 = Contact(
+    user = 1,
+    contact = 5
+)
+
 with Session(engine) as session:
         try:
-            session.add_all([u1, u2, tm1, tm2, tm3, c1, c2])
+            session.add_all([u1, u2, u3, u4, u5, 
+                             tm1, tm2, tm3, 
+                             c1, c2, c3, c4, c5])
 
             session.commit()
             result = session.execute(select(User)).fetchall()

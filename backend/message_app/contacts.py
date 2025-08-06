@@ -22,7 +22,8 @@ def contacts():
     for contact_row, user_row in results:
         contacts_data.append({
             'contact_id': contact_row.contact,
-            'contact_name': user_row.user_name
+            'contact_name': user_row.user_name,
+            'contact_uuid': user_row.uuid
         })
 
     # Retrieve three most recent messages
