@@ -47,15 +47,14 @@ def get_chat_messages(contact):
                     'id': Message.id,
                     'text': Message.text,
                     'sender': {
-                        'id': Message.user_from,
+                        'uuid': User.uuid,
                         'username': User.user_name
                         },
                     'recipient': {
-                        'id': Message.user_from,
+                        'uuid': User.uuid,
                         'username': User.user_name
                     },
                     'timestamp': Message.created_at.isoformat(),
-                    'is_own_message': bool
                 },
                 ...
             ]
@@ -67,7 +66,8 @@ def get_chat_messages(contact):
     messages = db.execute(
         select(
             Message,
-            User.user_name.label('sender_name')
+            User.user_name.label('sender_name'),
+            User.uuid.label('sender_uuid')
             )
             .join(User, Message.user_from == User.id)
             .where(
@@ -80,19 +80,19 @@ def get_chat_messages(contact):
     ).all()
     
     formatted_messages = []
-    for message, sender_name in messages:
-        recipient_name = db.scalar(select(User.user_name).where(User.id == message.user_to))
+    for message, sender_name, sender_uuid in messages:
+        recipient = db.scalar(select(User).where(User.id == message.user_to))
         
         formatted_messages.append({
             "id": message.id,
             "text": message.text,
             "sender": {
-                "id": message.user_from,
+                "uuid": sender_uuid,
                 "username": sender_name
             },
             "recipient": {
-                "id": message.user_to,
-                "username": recipient_name
+                "uuid": recipient.uuid,
+                "username": recipient.user_name
             },
             "timestamp": message.created_at.isoformat()
         })
@@ -108,6 +108,22 @@ def get_chat_messages(contact):
             )
         )
     ).scalar() == 2
+
+    # If no message history, make sure to still send user info
+    if not messages:
+        formatted_messages.append({
+            "id": None,
+            "text": None,
+            "sender": {
+                "uuid": current_user.uuid,
+                "username": current_user.user_name
+            },
+            "recipient": {
+                "uuid": contact.uuid,
+                "username": contact.user_name
+            },
+            "timestamp": None
+        })
 
     return jsonify({'messages': formatted_messages, 'is_mutual': is_mutual})
 
@@ -141,10 +157,11 @@ def on_join(data):
     # - should authenticate that user has permission to access the room
     room = data['room']
     join_room(room)
+    print(f"{current_user.user_name} joined room {room}")
     emit('room_joined', {'room': room})
 
 # Handler for send events
-@socketio.on('json', namespace='/chat')
+@socketio.on('message', namespace='/chat')
 def on_message(json):
     """
         Handler for receiving messages in JSON form.
@@ -157,17 +174,23 @@ def on_message(json):
         The message is stored in the database and a JSON is broadcast to all
         clients in the room:
             {
-             'recipient_user_name': ...,
-             'message': ...,
-             'sender': ...,
-             'created_at': ...
+                'id': Message.id,
+                'text': Message.text,
+                'sender': {
+                    'uuid': User.uuid,
+                    'username': User.user_name
+                    },
+                'recipient': {
+                    'uuid': User.uuid,
+                    'username': User.user_name
+                },
+                'timestamp': Message.created_at.isoformat(),
             }
             
         An error message is emitted if the db write fails. 
     """
     # TO DO: Validate message content (non-empty, length limits)
-    print('received json: ' + str(json))
-    sender = current_user.user_name
+    json = json[0]
     msg = json['message']
     recipient_user_name = json['recipient_user_name']
 
@@ -175,19 +198,29 @@ def on_message(json):
     
     try:
         recipient = db.scalar(select(User).where(User.user_name==recipient_user_name))
-        created_at = db.scalar(insert(Message).values(user_from=current_user.id,
-                                          user_to=recipient.id,
-                                          text=msg)
-                                          .returning(Message.created_at)
+        msg = db.scalar(insert(Message)
+                         .returning(Message)
+                         .values(user_from=current_user.id,
+                                 user_to=recipient.id,
+                                 text=msg)
         )
         db.commit()
-        created_at = created_at.isoformat()
-
-        json['sender'] = sender
-        json['created_at'] = created_at
-        print('sending json: ' + str(json))
-        room = min(current_user.uuid+recipient.uuid, recipient.uuid+current_user.uuid)
-        send(json, broadcast=True, to=room)
+        room_id = min(current_user.uuid+recipient.uuid, recipient.uuid+current_user.uuid)
+        data = {
+            'id': msg.id,
+            'text': msg.text,
+            'sender': {
+                    'uuid': current_user.uuid,
+                    'username': current_user.user_name
+                },
+            'recipient': {
+                'uuid': recipient.uuid,
+                'username': recipient.user_name
+            },
+            'timestamp': msg.created_at.isoformat(),
+            'room_id': room_id
+        }
+        send(data, broadcast=True, to=room_id)
         
     except Exception as e:
         print(f'Database error when saving message: {e}')

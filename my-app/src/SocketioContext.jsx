@@ -59,13 +59,17 @@ export function SocketioConnection({ children } ) {
             setConnState('disconnected');
         });
 
-        socketRef.current.on('message', (data) => {
+        socketRef.current.on('message', (msg) => {
             // TO DO: Flask should send room_id with data
-            const { room_id, recipient_user_name, message, sender, created_at } = data;
+            const { room_id } = msg;
             const handler = messageHandlers.current.get(room_id);
             if (handler) {
-                handler(message);
+                handler(msg);
             }
+        });
+
+        socketRef.current.on('room_joined', (data) => {
+            console.log("room_joined event logged with data:", data);
         });
 
         return () => {
@@ -84,9 +88,11 @@ export function SocketioConnection({ children } ) {
         }
     }, []);
 
-    const sendMessage = useCallback((message, to) => {
+    const sendMessage = useCallback((to, message) => {
         if (socketRef.current && socketRef.current.connected) {
-            socketRef.current.send({'recipient_user_name': to, 'message': message});
+            console.log("Message to send:", message);
+            console.log("To send to:", to);
+            socketRef.current.send([{'recipient_user_name': to, 'message': message}]);
         }
         else {
             setError("Couldn't send message: no connection", error);

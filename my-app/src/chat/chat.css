@@ -71,6 +71,7 @@
 }
 
 #message-input {
-    background: black;
-    color: white;
+    align-self: flex-end;
+    /* background: black;
+    color: white; */
 }

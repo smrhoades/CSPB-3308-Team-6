@@ -21,7 +21,7 @@ function App() {
                 <Route path="/register"      element={<RegisterPage/>} />
                 <Route path="/contacts-list" element={<ContactsList/>} />
                 <Route path="/contacts"      element={<Contacts/>} />
-                <Route path="/chat/:room_id" element={<ChatContainer/>} />
+                <Route path="/chat/:roomId" element={<ChatContainer/>} />
             </Routes>
             </BrowserRouter>
         </SocketioConnection>

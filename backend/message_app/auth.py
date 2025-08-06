@@ -84,11 +84,12 @@ def login():
 @bp.route('/current-user', methods=['GET'])
 @login_required
 def get_current_user():
-    db = get_db()
-    user = db.scalar(select(User).where(User.user_name == current_user.user_name))
+    # print("Getting current user...")
+    # db = get_db()
+    # user = db.scalar(select(User).where(User.user_name == current_user.user_name))
     user_data = {
-        'username': user.user_name,
-        'uuid': user.uuid
+        'username': current_user.user_name,
+        'uuid': current_user.uuid
     }
     return jsonify(user_data), 200
 

@@ -59,8 +59,8 @@ function ContactsList() {
     const clickHandler = (contact) => {
         const s1 = user.uuid+contact.contact_uuid;
         const s2 = contact.contact_uuid+user.uuid;
-        const room_id = s1 < s2 ? s1 : s2;
-        navigate(`/chat/${room_id}`);
+        const roomId = s1 < s2 ? s1 : s2;
+        navigate(`/chat/${roomId}`);
     }
 
     // Show loading while checking user session
