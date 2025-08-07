@@ -53,10 +53,12 @@ export function SocketioConnection({ children } ) {
         // register event listeners
         socketRef.current.on('connect', () => {
             setConnState('connected');
+            console.log('Client SocketIO connected');
         });
 
         socketRef.current.on('disconnect', () => {
             setConnState('disconnected');
+            console.log('Client SocketIO disconnected');
         });
 
         socketRef.current.on('message', (msg) => {
@@ -74,6 +76,7 @@ export function SocketioConnection({ children } ) {
 
         return () => {
             socketRef.current.disconnect();
+            console.log("Socket.IO client disconnected");
         };
 
     }, []);

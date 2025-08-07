@@ -227,7 +227,7 @@ def on_message(json):
         db.rollback()
         emit('error', {'message': 'Failed to send message. Please try again.'}, broadcast=False)
         
-@socketio.on('disconnect')
+@socketio.on('disconnect', namespace='/chat')
 def handle_disconnect():
     """
         When a user navigates away, closes the tab, or loses internet connection,
@@ -237,4 +237,4 @@ def handle_disconnect():
         We can log things like the reason for the disconnect, the time of the 
         disconnect ("last seen" feature), debugging info, etc. 
     """
-    print(f'User {current_user.id} disconnect from chat')
+    print(f'User {current_user.user_name} disconnect from chat')

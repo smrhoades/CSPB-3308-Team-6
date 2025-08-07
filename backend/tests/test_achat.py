@@ -113,18 +113,18 @@ def test_socketio_handlers(app, client, auth):
     #--------------------------------------------------------------------------
 
     # test1 sends message to test2
-    socketio_client.send({'recipient_user_name': 'test2',
-                        'message': 'Did you get my long message?'}, 
-                        json=True, namespace='/chat')
+    socketio_client.send([{'recipient_user_name': 'test2',
+                        'message': 'Did you get my long message?'}], namespace='/chat')
     received = socketio_client.get_received(namespace='/chat')
     received2 = socketio_client2.get_received(namespace='/chat')
+    print(received, received2)
     assert received == received2 # message should be broadcast
     assert len(received) == 1
     assert received[0]['name'] == 'message'
-    assert received[0]['args']['message'] == 'Did you get my long message?'
-    assert received[0]['args']['sender'] == 'test'
-    assert received[0]['args']['recipient_user_name'] == 'test2'
-    assert len(received[0]['args']['created_at']) > 0
+    assert received[0]['args']['text'] == 'Did you get my long message?'
+    assert received[0]['args']['sender']['username'] == 'test'
+    assert received[0]['args']['recipient']['username'] == 'test2'
+    assert len(received[0]['args']['timestamp']) > 0
     assert received[0]['namespace'] == '/chat'
     
     # message should be stored in db
@@ -153,9 +153,9 @@ def test_socketio_handlers(app, client, auth):
         # Mock db.commit to raise an exception
         with unittest.mock.patch.object(db, 'commit', side_effect=Exception('Database connection lost')):
             # Attempt to send message
-            socketio_client.send({'recipient_user_name': 'test2',
-                                'message': 'This should fail'}, 
-                                json=True, namespace='/chat')
+            socketio_client.send([{'recipient_user_name': 'test2',
+                                'message': 'This should fail'}], 
+                                namespace='/chat')
             
             # Check for error response
             received = socketio_client.get_received(namespace='/chat')
@@ -218,11 +218,11 @@ def test_load_chat_history(app, client, auth):
         assert 'timestamp' in first_message
         
         # Check sender structure
-        assert 'id' in first_message['sender']
+        assert 'uuid' in first_message['sender']
         assert 'username' in first_message['sender']
         
         # Check recipient structure
-        assert 'id' in first_message['recipient']
+        assert 'uuid' in first_message['recipient']
         assert 'username' in first_message['recipient']
         
         # Verify content of first message

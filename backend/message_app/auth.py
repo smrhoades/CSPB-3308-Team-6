@@ -102,11 +102,12 @@ def load_logged_in_usr():
 	else:
 		g.user = get_db().query(User).filter_by(id=user_id).first()
 
-@bp.route('/logout')
+@bp.route('/logout', methods=['GET'])
 def logout():
-	logout_user()
-	data = {'status': 'success'}
-	return make_response(data)
-
-
-
+    try:
+        username = current_user
+        print(f'Logging out {username.user_name}')
+    except:
+        username = None
+    logout_user()
+    return make_response('success', 200)

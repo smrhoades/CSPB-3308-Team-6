@@ -64,6 +64,7 @@ function UserData({ children }) {
     }, []); // Run once on mount
 
     const clearUser = () => {
+        console.log('User', user.username, 'logged out');
         setUser({});
     }
 

@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import LoginPage from './login-page/login-page.jsx'
 import RegisterPage from './register-page/register-page.jsx'
-import ContactsList from './contacts-list/contacts-list.jsx'
+import NavBar from './navbar/navbar.jsx'
 import Contacts from './contacts/contacts.jsx'
 import ChatContainer from './chat/chat.jsx'
 import { UserData } from './UserContext.jsx'
@@ -19,14 +19,38 @@ function App() {
                 <Route path="/"              element={<LoginPage/>} />
                 <Route path="/login"         element={<LoginPage/>} />
                 <Route path="/register"      element={<RegisterPage/>} />
-                <Route path="/contacts-list" element={<ContactsList/>} />
-                <Route path="/contacts"      element={<Contacts/>} />
-                <Route path="/chat/:roomId" element={<ChatContainer/>} />
+                <Route path="/contacts"      element={<AuthenticatedRoute>
+                                                        <Contacts/>
+                                                      </AuthenticatedRoute>} />
+                <Route path="/chat/:roomId" element={<AuthenticatedRoute>
+                                                        <ChatContainer/>
+                                                     </AuthenticatedRoute>} />
             </Routes>
             </BrowserRouter>
         </SocketioConnection>
     </UserData>
   )
+}
+
+function AuthenticatedRoute({ children }) {
+    return (
+        <div>
+            <SocketioConnection>
+                <AuthenticatedLayout>
+                    {children}
+                </AuthenticatedLayout>
+            </SocketioConnection>
+        </div>
+    )
+}
+
+function AuthenticatedLayout({ children }) {
+    return (
+        <div>
+            <NavBar />
+                {children}
+        </div>
+    );
 }
 
 export default App
