@@ -35,7 +35,9 @@ export default function NavBar() {
                 <button className="nav-item">My Contacts</button>
             </Link>
             <button className="nav-item">Add Contact</button>
-            <button className="nav-item">Profile</button>
+            <Link to='/profile'>
+                <button className="nav-item">Profile</button>
+            </Link>
             <button className="nav-item" onClick={handleLogout} disabled={isLoading}>
                 {isLoading ? "Logging out..." : "Logout"}
             </button>
