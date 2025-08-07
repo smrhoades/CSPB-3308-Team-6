@@ -74,7 +74,7 @@ function ContactsList() {
     }
 
     return (
-        <div className="center-box" id="outer-box">
+        <div className="contacts-container" id="outer-box">
             <h1>Welcome {user.username}!</h1>
             <h1>Contacts</h1>
             <VisualContactsList contacts={contactsData} clickHandler={clickHandler}/>

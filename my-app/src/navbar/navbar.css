@@ -1,0 +1,23 @@
+.navbar {
+    background-color: var(--color-secondary);
+    display: flex;
+    justify-content: center;
+    margin: 0 auto;
+    margin-bottom: 10px;
+    max-width: 600px;
+    gap: 10px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.nav-item {
+    border-width: 1px;
+    background-color: var(--color-primary);
+    cursor: pointer;
+    padding: 10px 15px;
+    transition: background-color 0.2s ease;
+}
+
+.nav-item:hover {
+    background-color: var(--color-ternary);
+}

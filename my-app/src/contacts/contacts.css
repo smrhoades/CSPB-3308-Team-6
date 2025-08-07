@@ -1,4 +1,61 @@
-#outer-box {
+.contacts-container {
+    background-color: var(--color-secondary);
+    padding-top: 10px;
+    padding-bottom: 10px;
+    width: 90%;
+    max-width: 600px;
+    margin: 0 auto;
+    /* border: 2px solid black; */
+}
+
+.contacts-container h1:first-child {
+    /* Welcome message */
+    font-size: 1.5rem;
+    font-weight: normal;
+    color: #333;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.contacts-container h1:last-of-type {
+    /* "Contacts" heading */
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.contact-card {
+    /* Remove default button styling */
+    border: none;
+    background-color: white;
+    cursor: pointer;
+
+    /* Card-like appearance */
+    padding: 15px 20px;
+    margin-bottom: 12px;
+    border-radius: 8px;
+
+    /* Typography */
+    text-align: left;
+    font-size: 1rem;
+    color: #333;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+
+    display: block;
+    width: 75%;
+    margin: 0 auto 12px auto;
+    /* border: 2px solid red; */
+
+    transition: background-color 0.2s ease;
+}
+
+.contact-card:hover {
+    background-color: var(--color-ternary);
+}
+
+/* #outer-box {
     width: 300px;
     height: 300px;
     background-color: lightgray;
@@ -14,6 +71,7 @@
 
 #inner-box {
     display: flex;
+    justify-content: center;
     background-color: teal;
     flex-direction: row;
 }
@@ -33,4 +91,4 @@
 .contact-card:hover {
     background-color: black;
     color: white;
-}
+} */

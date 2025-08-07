@@ -1,17 +1,32 @@
-.center-box {
-    width: 300px;
-    height: 300px;
-    background-color: lightgray;
-    color: black;
+.login-container {
+    width: 420px;
+    height: 420px;
+    background-color: var(--color-secondary);
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    font-size: 1.0rem;
+    font-size: 1.2rem;
     border-radius: 8px;
+    margin: 0 auto;
+}
+
+.form-container {
+    width: 50%;
+    text-align: left;
+    /* background-color: purple; */
 }
 
 .login-input {
     background-color: black;
     color: white;
+    font-size: 16;
+    width: 100%;
+    height: 25px;
+}
+
+.loginButton {
+    margin: 2px;
+    padding: 5px;
+    font-size: 16px;
 }

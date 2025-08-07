@@ -1,3 +1,4 @@
+import './App.css'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import LoginPage from './login-page/login-page.jsx'
 import RegisterPage from './register-page/register-page.jsx'
@@ -13,7 +14,6 @@ function App() {
   // After logging in, user data will be able to accessed (see UserContext.jsx)
   return (
     <UserData>
-        <SocketioConnection>
             <BrowserRouter>
             <Routes>
                 <Route path="/"              element={<LoginPage/>} />
@@ -27,7 +27,6 @@ function App() {
                                                      </AuthenticatedRoute>} />
             </Routes>
             </BrowserRouter>
-        </SocketioConnection>
     </UserData>
   )
 }

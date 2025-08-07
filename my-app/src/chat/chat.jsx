@@ -1,5 +1,5 @@
 import './chat.css'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useUser } from '../UserContext.jsx'
 import { useSocket } from '../SocketioContext.jsx'
@@ -68,6 +68,8 @@ function ChatInterface({ messages, sendMessage, user, error }) {
     if (error) {
         return <div>{error}</div>;
     }
+    const messagesEndRef = useRef(null);
+    const textareaRef = useRef(null);
     const [text, setText] = useState('');
     const sendHandler = (to, msg) => {
         if (msg !== '') {
@@ -79,26 +81,50 @@ function ChatInterface({ messages, sendMessage, user, error }) {
     if (messages.length > 0) {
         contactUsername = messages[0].sender.username == user.username ? messages[0].recipient.username : messages[0].sender.username;
     }
+
+    useEffect(() => {
+        // When messages change, scroll to bottom
+        if (messagesEndRef.current) {
+            messagesEndRef.current.scrollTop = messagesEndRef.current.scrollHeight;
+        }
+    }, [messages]);
+
+    const resizeTextarea = () => {
+        if (textareaRef.current) {
+            textareaRef.current.style.height = 'auto'; // Reset to measure content
+            const scrollHeight = textareaRef.current.scrollHeight;
+
+            // Set limits
+            const newHeight = Math.min(scrollHeight, 60);
+            textareaRef.current.style.height = newHeight + 'px';
+        }
+    }
+
     return (
         <>
-        <div className="center-box" id="outer-box">
-            <h3>{user.username}'s conversation with {contactUsername}</h3>
-            {
-                messages.map(({id, text, sender, recipient, timestamp}) => {
-                    const msg_direction = sender.username === user.username ? 'to' : 'from'
-                    return (
-                    <div className={`chat-message-${msg_direction}`} key={id}>
-                        {text}
-                    </div>
-                    )
-                })
-            }
-            <input
-                value={text}
-                onChange={(e) => setText(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && sendHandler(contactUsername, text)}
-            />
-            <button type="button" onClick={(event) => sendHandler(contactUsername, text)}>send</button>
+        <div className="chat-container" id="chat-outer-box">
+            <div className="chat-header"><h3>Conversation with {contactUsername}</h3></div>
+            <div className="messages" ref={messagesEndRef}>
+                {
+                    messages.map(({id, text, sender, recipient, timestamp}) => {
+                        const msg_direction = sender.username === user.username ? 'to' : 'from'
+                        return (
+                        <div className={`chat-message-${msg_direction}`} key={id}>
+                            {text}
+                        </div>
+                        )
+                    })
+                }
+            </div>
+            <div className="input-container">
+                <textarea id="input-box"
+                    ref={textareaRef}
+                    value={text}
+                    onChange={(e) => { setText(e.target.value); resizeTextarea() }}
+                    onKeyDown={(e) => e.key === 'Enter' && sendHandler(contactUsername, text)}
+                />
+                <button type="button" onClick={(event) => sendHandler(contactUsername, text)}>send</button>
+            </div>
         </div>
         </>
     )

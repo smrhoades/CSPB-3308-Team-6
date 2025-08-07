@@ -1,8 +1,20 @@
-body {
-  background-color: teal;
+* {
+    /* font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; */
+    font-family: 'Times';
 }
 
-#root {
+body {
+  background-color: var(--color-primary);
+}
+
+:root {
+    --color-primary: #ffffff;   
+    --color-secondary: #ffeac8; 
+    --color-ternary: #bff9df;    
+    --color-quaternary: #acc9ef;      
+}
+
+/* #root {
   display: flex;
   max-width: 1280px;
   height: 100vh;
@@ -11,4 +23,7 @@ body {
   text-align: center;
   justify-content: center;
   align-items: center;
-}
+} */
+
+
+

@@ -46,9 +46,9 @@ function LoginPage() {
     };
 
     return (
-        <div className="center-box">
+        <div className="login-container">
             <h1>Welcome!</h1>
-            <form onSubmit={(e) => {e.preventDefault(); handleLogin(); }}>
+            <form className="form-container" onSubmit={(e) => {e.preventDefault(); handleLogin(); }}>
                 <label>username</label>
                 <br />
                 <input id="username-input" className="login-input" value={username} onChange={(e) => setUsername(e.target.value)} />
@@ -57,10 +57,10 @@ function LoginPage() {
                 <br />
                 <input id="password-input" className="login-input" value={password} onChange={(e) => setPassword(e.target.value)} type="password"/>
                 <br />
-                <button type ="submit" onClick={handleLogin}>login</button>
+                <button className="loginButton" type ="submit" onClick={handleLogin}>login</button>
                 <br />
                 <Link to="/register">
-                    <button>need to register?</button>
+                    <button className="loginButton">need to register?</button>
                 </Link>
             </form>
         </div>
