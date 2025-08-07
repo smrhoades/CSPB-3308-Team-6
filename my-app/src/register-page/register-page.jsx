@@ -16,14 +16,15 @@ function RegisterPage() {
         {
             method: 'POST',                                     
             headers: { 'Content-Type': 'application/json' },    // this is for Flask to understand that the request is a json
-            body: requestBody                                   // converts the provided username, password into a json
+            body: requestBody,                                   // converts the provided username, password into a json
+            credentials: 'include'
         }
         );
 
         const data = await response.json();                     // Flask's response will be saved in data
         console.log(data)                                       // for testing
 
-        if (data.success) {                                     
+        if (data.status == 'success') {                                     
             navigate('/login')                                  // if successful, return to login page
         } else {            
             setError(`Register error with msg: ${data.message}`)// Flask should tell us here that the credentials are invalid and why
@@ -35,9 +36,9 @@ function RegisterPage() {
     };
 
     return (
-        <div className="center-box">
+        <div className="register-container">
             <h1>Register Here</h1>
-            <form onSubmit={(e) => {e.preventDefault(); handleRegister(); }}>
+            <form className="form-container" onSubmit={(e) => {e.preventDefault(); handleRegister(); }}>
                 <label>username</label>
                 <br />
                 <input id="username-input" className="login-input" value={username} onChange={(e) => setUsername(e.target.value)} />
@@ -46,7 +47,7 @@ function RegisterPage() {
                 <br />
                 <input id="password-input" className="login-input" value={password} onChange={(e) => setPassword(e.target.value)} type="password"/>
                 <br />
-                <button type ="submit" onClick={handleRegister}>register</button>
+                <button className="register-button" type ="submit" onClick={handleRegister}>register</button>
                 <br />
             </form>
         </div>

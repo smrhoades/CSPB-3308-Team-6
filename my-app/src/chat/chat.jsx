@@ -1,80 +1,133 @@
 import './chat.css'
-import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useState, useEffect, useRef } from 'react'
+import { Link, useNavigate, useParams } from 'react-router-dom'
+import { useUser } from '../UserContext.jsx'
+import { useSocket } from '../SocketioContext.jsx'
 
-// TODO:    
-// Message data below will be sent from Flask
-// Hardcoded for now
+/*
+Flow:
+    - Fetch message history
+    - Render message history
+    - Emit Socket.IO connection request
+    - Upon success, emit join room request
+    - Emit send event every time "send" button is clicked
+*/
 
-const currentUser = 'Paul'
-const messagesData = [
-// id, user_from, user_to, text, created_at
-    [1, 'Paul', 'John', 'Good morning!', '10:15 AM'],
-    [2, 'John','Paul', 'How are you doing today?', '10:16 AM'],
-    [3, 'Paul', 'John', 'Feeling a bit under the weather actually. This message has to be particularly long though in order to test behavior of multi-line messages.', '10:21 AM'],
-    [4, 'John', 'Paul', 'Sorry to hear that', '10:22 PM'],
-    [5, 'John', 'Paul', 'This message is the first double text in the whole app.', '10:23 PM'],
-    [6, 'Paul', 'John', 'Lorem Ipsum and so on...', '11:30 PM'],
-    [7, 'Paul', 'John', 'zzzzz.....', '11:30 PM'],
-    [8, 'John', 'Paul', 'Maybe this message will make the conversation history long enough that it overflows the parent <div> element.', '11:31 PM'],
-    [9, 'Paul', 'John', 'It is!', '11:35 PM']
-]
-
-
-
-function VisualMessagesList({ conversation=messagesData, user=currentUser }) {
-    const [newMsg, setNewMsg] = useState('')
+// fetches data, manages socket
+function ChatContainer() {
     const [error, setError] = useState('')
-    const navigate = useNavigate()
+    const [messagesLoading, setMessagesLoading] = useState(true);
+    const [messages, setMessages] = useState([]);
+    const { roomId } = useParams();
+    const { user, isLoading } = useUser();
+    const { joinRoom, sendMessage, subscribeToRoom } = useSocket();
 
-    const handleSendMessage = async () => {
-        const requestBody = JSON.stringify({newMsg})
-        console.log(requestBody) // for testing
+    const getMessageHistory = async () => {
         try {
-            const response = await fetch('http://127.0.0.1:5000/chat', //placeholder
+            const response = await fetch(`http://127.0.0.1:5000/chat/${roomId}`,
                 {
-                    method: 'POST',
+                    method: 'GET',
                     headers: {'Content-Type': 'application/json'},
-                    body: requestBody
+                    credentials: 'include',
                 }
             );
 
-            const data = await response.json()
-            console.log(data) // for testing
-
-            if (data.status === 'success') {
-                navigate('/chat') // one way to refresh the page...
-            } else {
-                setError(`Message Send error with msg: ${data.message}`)
-                console.log(data)
-            }
-        } catch (err) {
-            setError('Server Error: no response from Flask')
+            const messagesData = await response.json();
+            setMessages(messagesData.messages);
+        } catch (error) {
+            setError("Couldn't retrieve message history:", error);
+        } finally {
+            setMessagesLoading(false);
         }
-        setNewMsg('')
     };
+
+    useEffect(() => {
+        getMessageHistory();
+        joinRoom(roomId);
+        const unsubscribe = subscribeToRoom(roomId, (newMessage) => {
+            setMessages(prev => [...prev, newMessage]);
+        });
+
+        return unsubscribe;        // Clean up
+    }, [roomId, subscribeToRoom]); // reload message history for different chats
+
+   if (messagesLoading || isLoading) {
+        return <div>Loading...</div>;
+    }
+
+    return (
+        <ChatInterface messages={messages} 
+                       sendMessage={sendMessage} 
+                       user={user}
+                       error={error} />
+    )
+}
+
+// renders everything
+function ChatInterface({ messages, sendMessage, user, error }) {
+    if (error) {
+        return <div>{error}</div>;
+    }
+    const messagesEndRef = useRef(null);
+    const textareaRef = useRef(null);
+    const [text, setText] = useState('');
+    const sendHandler = (to, msg) => {
+        if (msg !== '') {
+            sendMessage(to, msg);
+            setText('');
+        }
+    }
+    var contactUsername = 'Loading...';
+    if (messages.length > 0) {
+        contactUsername = messages[0].sender.username == user.username ? messages[0].recipient.username : messages[0].sender.username;
+    }
+
+    useEffect(() => {
+        // When messages change, scroll to bottom
+        if (messagesEndRef.current) {
+            messagesEndRef.current.scrollTop = messagesEndRef.current.scrollHeight;
+        }
+    }, [messages]);
+
+    const resizeTextarea = () => {
+        if (textareaRef.current) {
+            textareaRef.current.style.height = 'auto'; // Reset to measure content
+            const scrollHeight = textareaRef.current.scrollHeight;
+
+            // Set limits
+            const newHeight = Math.min(scrollHeight, 60);
+            textareaRef.current.style.height = newHeight + 'px';
+        }
+    }
 
     return (
         <>
-        <div className="center-box" id="outer-box">
-            <h3>John</h3>
-            {
-                conversation.map(([id, user_from, user_to, text, created_at]) => {
-                    const msg_direction = user_from === user ? 'to' : 'from'
-                    return (
-                    <div className={`chat-message-${msg_direction}`} key={id}>
-                        {text}
-                    </div>
-                    )
-                })
-            }
-            <form id="message-input-form" onSubmit={(e) => {e.preventDefault(); handleSendMessage();}}>
-                <input id="message-input" className="message-input" value={newMsg} onChange={(e) => setNewMsg(e.target.value)}></input>
-                <button type="submit" onClick={handleSendMessage}>send</button>
-            </form>
+        <div className="chat-container" id="chat-outer-box">
+            <div className="chat-header"><h3>Conversation with {contactUsername}</h3></div>
+            <div className="messages" ref={messagesEndRef}>
+                {
+                    messages.map(({id, text, sender, recipient, timestamp}) => {
+                        const msg_direction = sender.username === user.username ? 'to' : 'from'
+                        return (
+                        <div className={`chat-message-${msg_direction}`} key={id}>
+                            {text}
+                        </div>
+                        )
+                    })
+                }
+            </div>
+            <div className="input-container">
+                <textarea id="input-box"
+                    ref={textareaRef}
+                    value={text}
+                    onChange={(e) => { setText(e.target.value); resizeTextarea() }}
+                    onKeyDown={(e) => e.key === 'Enter' && sendHandler(contactUsername, text)}
+                />
+                <button type="button" onClick={(event) => sendHandler(contactUsername, text)}>send</button>
+            </div>
         </div>
         </>
     )
 }
 
-export default VisualMessagesList
+export default ChatContainer
