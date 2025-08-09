@@ -1,5 +1,7 @@
+import pytest
 from datetime import datetime
 from http import HTTPStatus
+from message_app.db import get_db, has_contact, get_user_by_name
 
 # parse date string
 def pds(date_str):
@@ -37,3 +39,24 @@ def test_contacts_no_login(client):
     
     # Check that client is redirected to login page
     assert 'auth/login' in response.location
+
+@pytest.mark.parametrize(
+        ('username', 'message'), (
+            ('test', 'cannot add self as a contact'),
+            ('xx', 'user xx not found'),
+            ('test2', 'test2 already in contacts'),
+            ('island', 'success')
+            ))
+def test_add_contact_validation(client, auth, username, message):
+    auth.login()
+    response = client.post('/contacts', json={'username': username})
+    assert message in response.json['message']
+
+def test_add_contact_db_write(app, client, auth):
+    auth.login()
+    client.post('/contacts', json={'username': 'island'})
+    with app.app_context():
+        db = get_db()
+        user = get_user_by_name(db, 'test')
+        contact = get_user_by_name(db, 'island')
+        assert has_contact(db, user, contact)

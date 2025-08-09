@@ -2,7 +2,7 @@ from functools import wraps
 from flask import abort
 from flask_login import current_user
 from .data_classes import User, Contact
-from .db import get_db
+from .db import get_db, has_contact
 from sqlalchemy import select, exists
 
 def parse_room_id(room_id):
@@ -25,14 +25,7 @@ def contact_required(f):
             abort(404)
             
         # Check if current user has added this contact
-        can_chat = db.scalar(
-            select(
-                exists().where(
-                    (Contact.user == current_user.id) &
-                    (Contact.contact == contact.id)
-                )
-            )
-        )
+        can_chat = has_contact(current_user, contact)
 
         if not can_chat:
             abort(403) # or redirect to contact page

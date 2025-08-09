@@ -23,6 +23,7 @@ def insert_user_data():
         user_pwd =  generate_password_hash('test3')
     )
     
+    # island is friends with no one and no one is friends with island
     test_user_island = User(
         user_name = 'island',
         user_pwd = generate_password_hash('island')
