@@ -34,7 +34,9 @@ export default function NavBar() {
             <Link to='/contacts'>
                 <button className="nav-item">My Contacts</button>
             </Link>
+            <Link to='/contacts/add'>
             <button className="nav-item">Add Contact</button>
+            </Link>
             <Link to='/profile'>
                 <button className="nav-item">Profile</button>
             </Link>

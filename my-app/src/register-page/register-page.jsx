@@ -25,6 +25,7 @@ function RegisterPage() {
         console.log(data)                                       // for testing
 
         if (data.status == 'success') {                                     
+            alert("Registration success!");
             navigate('/login')                                  // if successful, return to login page
         } else {            
             setError(`Register error with msg: ${data.message}`)// Flask should tell us here that the credentials are invalid and why

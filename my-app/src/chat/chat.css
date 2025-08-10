@@ -2,16 +2,16 @@
     background-color: var(--color-quaternary);
     display: flex;
     flex-direction: column;
-    align-items: center;
-    text-align: center;
     margin: 0 auto;
     width: 600px;
     height: 75vh;
 }
 
 .chat-header {
+    text-align: center;
     position: sticky;
-    top: 0;
+    border-bottom: 1px solid black;
+    padding: 0px;
 }
 
 .messages {
@@ -33,6 +33,7 @@
     margin-top: 5px;
     text-align: left;
     font-size: 16px;
+    /* border: 2px solid black; */
 }
 
 .chat-message-from {

@@ -17,13 +17,16 @@ def contacts():
         db = get_db()
         
         # Retrieve all contacts
+        # TO DO: make this a db.py function then import and call
+        # Furthermore, should just return the User object for each contact
         contacts_data = []
         query = select(Contact, User).join(User, Contact.contact == User.id).where(Contact.user == user.id)
         results = db.execute(query).all()
         for contact_row, user_row in results:
             contacts_data.append({
                 'contact_id': contact_row.contact,
-                'contact_name': user_row.user_name
+                'contact_name': user_row.user_name,
+                'contact_uuid': user_row.uuid
             })
 
         # Retrieve three most recent messages
