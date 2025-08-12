@@ -4,6 +4,7 @@ import LoginPage from './login-page/login-page.jsx'
 import RegisterPage from './register-page/register-page.jsx'
 import NavBar from './navbar/navbar.jsx'
 import Contacts from './contacts/contacts.jsx'
+import AddContact from './contacts/add/addContact.jsx'
 import ChatContainer from './chat/chat.jsx'
 import ProfilePage from './profile-page/profile-page.jsx'
 import { UserData } from './UserContext.jsx'
@@ -22,6 +23,9 @@ function App() {
                 <Route path="/register"      element={<RegisterPage/>} />
                 <Route path="/contacts"      element={<AuthenticatedRoute>
                                                         <Contacts/>
+                                                      </AuthenticatedRoute>} />
+                <Route path="/contacts/add"      element={<AuthenticatedRoute>
+                                                        <AddContact/>
                                                       </AuthenticatedRoute>} />
                 <Route path="/chat/:roomId" element={<AuthenticatedRoute>
                                                         <ChatContainer/>

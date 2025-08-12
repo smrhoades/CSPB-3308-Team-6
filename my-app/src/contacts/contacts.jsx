@@ -12,15 +12,13 @@ Pattern
     5. Component re-renders with the new data
 */
 
-// const contactsArray = ['John','Paul','George','Ringo'];
-
-function VisualContactsList({ contacts, clickHandler }) {
+function VisualContactsList({ contacts, clickHandler, idProperty, displayProperty }) {
     return (
             <>
                 {
                     contacts.map(contact => (
                         <button onClick={(event) => clickHandler(contact)} className="contact-card" 
-                            key={contact.contact_uuid}>{contact.contact_name}</button>
+                            key={contact[idProperty]}>{contact[displayProperty]}</button>
                     ))
                 }
             </>
@@ -28,8 +26,6 @@ function VisualContactsList({ contacts, clickHandler }) {
 }
 
 function ContactsList() {
-    // hooks are called at top level of component so that the states they modify
-    // persist across renders
     const [contactsData, setContacts] = useState([]);
     const [error, setError] = useState('');
     const { user, isLoading } = useUser();
@@ -47,7 +43,7 @@ function ContactsList() {
                 credentials: 'include'  // send cookies with the request so Flask knows User is logged-in
             });
             const data = await response.json();
-            const contactsData = data.contacts_data
+            const contactsData = data.contacts_data;
             setContacts(contactsData);
         }
         catch (err) {
@@ -76,9 +72,14 @@ function ContactsList() {
         <div className="contacts-container" id="outer-box">
             <h1>Welcome {user.username}!</h1>
             <h1>Contacts</h1>
-            <VisualContactsList contacts={contactsData} clickHandler={clickHandler}/>
+            <VisualContactsList contacts={contactsData} 
+                                clickHandler={clickHandler}
+                                idProperty="contact_uuid"
+                                displayProperty="contact_name"
+            />
         </div>
     )
 }
 
 export default ContactsList
+export { VisualContactsList }

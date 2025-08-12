@@ -16,6 +16,11 @@ class User(Base, UserMixin):
     user_pwd = Column(String, nullable=False)
     created_at = Column(DateTime(timezone=True), default=func.now())
     modified_at = Column(DateTime(timezone=True), default=func.now())
+    
+    def to_dict(self):
+        return {'id': self.id, 'uuid': self.uuid, 'user_name': self.user_name,
+                'user_pwd': self.user_pwd, 'created_at': self.created_at,
+                'modified_at': self.modified_at}
 
 class Message(Base):
     __tablename__ = 'message_data'

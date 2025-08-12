@@ -76,6 +76,9 @@ def create_app(test_config=None):
     from . import chat
     app.register_blueprint(chat.bp)
     
+    from . import usersearch
+    app.register_blueprint(usersearch.bp)
+    
     return app
 
 if __name__ == '__main__':
