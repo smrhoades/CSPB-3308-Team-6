@@ -73,9 +73,18 @@ What you completed
 - Contacts page
   - Backend
     - The contacts page gets a list from the database which include the current user as one half of a contact pair. For these contact pairs, the three most recent messages are then retrieved as well.
+    - The contacts page also supports the ```POST``` method for users to add new contacts. The contact username is validated and then added to the user's contact list. 
   - Front End
     - The contacts page provides a list of other users whom the current user has added as a contact. Each contact may be selected to go to a chat page with that user.
     ![image](./image-1.png)
+
+- Add Contact page
+  - Backend
+    - The ```/users/search``` endpoint extracts the search term from the URL and queries the database, returning any usernames that are "like" the search term. 
+    - See Contacts page ```POST``` method for adding a contact. 
+  - Front End
+    - The add contact page provides an input field for users to search for other users by username. A list of contacts is returned for a search query. A user can click on a contact to add them. The user receives a confirmation alert or an error alert upon completion of request. 
+    ![image](./image-5.png)
 
 What you were in the middle of implementing
 - Database: Connect to real external database (Supabase)
@@ -88,10 +97,13 @@ What you were in the middle of implementing
 What you had planned for the future
 - Group (multi-user) chats
 - Encryption
+- Read receipts on messages
+- Notification of new messages when not on chat page
 
 Any known problems (bugs, issues)
 - App does not work in coding.csel.io environment with the addition of React due to the proxy
-- No way to add new contacts has been implimented
+- If Socket.IO connection drops, it does not attempt to reconnect - User must refresh the page to re-establish the connection. 
+- UI bug: small white bubble in chat, above the input box, when initiating a new chat.
 
 ## Links
 
@@ -102,7 +114,7 @@ Version control repository link:
 https://github.com/smrhoades/CSPB-3308-Team-6
 
 Demo Video Link: 
-a demo for a potential customer (could be same one you used in the presentation)
+https://drive.google.com/file/d/1dJTe1-4o6tPbrrwm_XrII0nr6gZmhhYa/view?usp=sharing
 
 Public hosting site link:
 List your public hosting site and make sure that it is available
