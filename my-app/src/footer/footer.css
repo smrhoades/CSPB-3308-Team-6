@@ -1,0 +1,24 @@
+.footer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    /* border-top: 1px solid var(--color-quaternary); */
+    width: 90%;
+    max-width: 600px;
+    margin: 0 auto;
+    /* padding: 20px 0; */
+    margin-top: auto;
+    text-align: center;
+    /* border: 2px solid black; */
+}
+
+.footer-text-content {
+    text-align: center;
+    width: 100%;
+    /* background-color: var(--color-ternary); */
+    /* border: 1px solid rgb(211, 127, 211); */
+    justify-content: center;
+    font-size: 12px;
+    line-height: 0.5;
+}
