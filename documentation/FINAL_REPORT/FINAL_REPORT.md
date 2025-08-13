@@ -54,7 +54,7 @@ What you completed
     - The registration page accepts a username and password, and checks against a database of registered users and adds to the database if the username is not taken. If the username is already taken, it returns an appropriate error message.
   - Front End
     - The registration page provides a place for a user to input a username and password. A button allows the submission of the data.
-    ![image](./image-5.png)
+    ![image](./image-6.png)
 
 - Profile page
   - Backend
