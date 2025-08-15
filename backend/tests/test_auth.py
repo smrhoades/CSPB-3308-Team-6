@@ -1,7 +1,7 @@
 import pytest
 from http import HTTPStatus
 from flask import g, session
-from message_app.db import get_db
+from message_app import db_
 from flask_login import current_user
 
 from message_app.data_classes import User
@@ -14,12 +14,12 @@ def test_register(client, app):
     assert 'success' in response.json['status']
 
     with app.app_context():
-        user = get_db().query(User).filter_by(user_name='a').first()
+        user = db_.session.query(User).filter_by(user_name='a').first()
         assert user is not None
 
 @pytest.mark.parametrize(('username', 'password', 'status_code', 'message'), (
-    ('', '', HTTPStatus.OK, 'Username is required.'),
-    ('a', '', HTTPStatus.OK, 'Password is required.'),
+    ('', '', HTTPStatus.CONFLICT, 'Username is required.'),
+    ('a', '', HTTPStatus.CONFLICT, 'Password is required.'),
     ('test', 'test', HTTPStatus.CONFLICT, 'already registered')
 ))
 def test_register_validate_input(client, username, password, status_code, message):

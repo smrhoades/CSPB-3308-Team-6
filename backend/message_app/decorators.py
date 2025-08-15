@@ -2,7 +2,8 @@ from functools import wraps
 from flask import abort
 from flask_login import current_user
 from .data_classes import User
-from .db import get_db, has_contact
+from message_app import db_
+from .db import has_contact
 from sqlalchemy import select
 
 def parse_room_id(room_id):
@@ -16,17 +17,16 @@ def parse_room_id(room_id):
 def contact_required(f):
     @wraps(f)
     def decorated_function(room_id, *args, **kwargs):
-        db = get_db()
 
         _, contact_uuid = parse_room_id(room_id)
         # Check if contact exists
         # TO DO: add get_contact_by_uuid to db.py then import and call
-        contact = db.scalar(select(User).filter(User.uuid==contact_uuid))
+        contact = db_.session.scalar(select(User).filter(User.uuid==contact_uuid))
         if not contact:
             abort(404)
             
         # Check if current user has added this contact
-        can_chat = has_contact(db, current_user, contact)
+        can_chat = has_contact(current_user, contact)
 
         if not can_chat:
             abort(403) # or redirect to contact page

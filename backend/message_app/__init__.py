@@ -2,16 +2,17 @@ import os
 
 from flask import Flask
 from flask_cors import CORS
+from flask_sqlalchemy import SQLAlchemy
 from flask_socketio import SocketIO
 from flask_login import LoginManager
 from message_app.prefix import PrefixMiddleware
-
 from sqlalchemy import select
 
 # Create instance of SocketIO: not yet bound to any Flask app
 # server attribute is None b/c there is no app to serve
 socketio = SocketIO(logger=True, engineio_logger=True, cors_allowed_origins=["http://localhost:5173"])
 print(f"SocketIO created at module level: {socketio}")
+db_ = SQLAlchemy()
 
 def create_app(test_config=None):
     # create and configure the app
@@ -24,13 +25,26 @@ def create_app(test_config=None):
     socketio.init_app(app)
     print(f"SocketIO object initialized in create_app(): {app.extensions['socketio']}")
 
-    PrefixMiddleware(app)
+    # Get the database URL from environment
+    database_url = os.environ.get(
+        'DATABASE_URL',
+        f"sqlite:///{os.path.join(app.instance_path, 'messenger.db')}"
+    )
+        
+    # Render's PostgreSQL URLs start with 'postgres://' but SQLAlchemy 1.4+ expects 'postgresql://'
+    if database_url.startswith('postgres://'):
+        database_url = database_url.replace('postgres://', 'postgresql://', 1)
+
     app.config.from_mapping(
         SECRET_KEY='dev',
         SESSION_COOKIE_SAMESITE='None', # Necessary for cross-origin which we have b/c Flask/React are on different servers
         SESSION_COOKIE_SECURE=True,    # Needs to be true: means that user data can only be sent over HTTPS
-        DATABASE=os.path.join(app.instance_path, 'messenger.db'),
+        SQLALCHEMY_DATABASE_URI=database_url,
+        SQLALCHEMY_TRACK_MODIFICATIONS=False
     )
+    
+    db_.init_app(app)
+    print(db_, "initialized at", f"{hex(id(db_))}")
 
     if test_config is None:
         # load the instance config, if it exists, when not testing
@@ -58,9 +72,8 @@ def create_app(test_config=None):
     @login_manager.user_loader
     def load_user(user_id):
         from .data_classes import User
-        from .db import get_db
-        db = get_db()
-        return db.scalar(select(User).where(User.id == int(user_id)))
+        from . import db_
+        return db_.session.scalar(select(User).where(User.id == int(user_id)))
 
     # print("App config" + str(app.config))
 

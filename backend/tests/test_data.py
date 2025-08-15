@@ -31,11 +31,11 @@ def insert_user_data():
     
 
     db = get_db()
-    db.add(test_user)
-    db.add(other_user)
-    db.add(test_user2)
-    db.add(test_user_island)
-    db.commit()
+    db.session.add(test_user)
+    db.session.add(other_user)
+    db.session.add(test_user2)
+    db.session.add(test_user_island)
+    db.session.commit()
     
 def insert_contact_data():
     """
@@ -64,11 +64,11 @@ def insert_contact_data():
     )
     
     db = get_db()
-    db.add(test_user_contact1)
-    db.add(test_user_contact2)
-    db.add(other_user_contact)
-    db.add(test_user2_contact)
-    db.commit()
+    db.session.add(test_user_contact1)
+    db.session.add(test_user_contact2)
+    db.session.add(other_user_contact)
+    db.session.add(test_user2_contact)
+    db.session.commit()
     
 def insert_message_data():
     tm1 = Message(
@@ -108,8 +108,8 @@ def insert_message_data():
     )
 
     db = get_db()
-    db.add_all([tm1, tm2, tm3, tm4, tm5])
-    db.commit()
+    db.session.add_all([tm1, tm2, tm3, tm4, tm5])
+    db.session.commit()
     
 def insert_test_data():
     insert_user_data()

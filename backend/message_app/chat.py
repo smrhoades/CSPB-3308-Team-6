@@ -1,8 +1,7 @@
 from flask import Blueprint, jsonify
 from flask_login import login_required, current_user
-from message_app.db import get_db
+from message_app import db_
 from message_app.data_classes import User, Contact, Message
-from werkzeug.exceptions import abort
 from message_app import socketio
 from sqlalchemy import insert, select, func, or_
 from flask_socketio import join_room, emit, send
@@ -61,9 +60,7 @@ def get_chat_messages(contact):
          'is_mutual': bool
         }
     """
-    db = get_db()
-
-    messages = db.execute(
+    messages = db_.session.execute(
         select(
             Message,
             User.user_name.label('sender_name'),
@@ -81,7 +78,7 @@ def get_chat_messages(contact):
     
     formatted_messages = []
     for message, sender_name, sender_uuid in messages:
-        recipient = db.scalar(select(User).where(User.id == message.user_to))
+        recipient = db_.session.scalar(select(User).where(User.id == message.user_to))
         
         formatted_messages.append({
             "id": message.id,
@@ -98,7 +95,7 @@ def get_chat_messages(contact):
         })
 
     # Check whether each has added the other
-    is_mutual = db.execute(
+    is_mutual = db_.session.execute(
         select(func.count())
         .select_from(Contact)
         .where(
@@ -193,18 +190,16 @@ def on_message(json):
     json = json[0]
     msg = json['message']
     recipient_user_name = json['recipient_user_name']
-
-    db = get_db()
     
     try:
-        recipient = db.scalar(select(User).where(User.user_name==recipient_user_name))
-        msg = db.scalar(insert(Message)
+        recipient = db_.session.scalar(select(User).where(User.user_name==recipient_user_name))
+        msg = db_.session.scalar(insert(Message)
                          .returning(Message)
                          .values(user_from=current_user.id,
                                  user_to=recipient.id,
                                  text=msg)
         )
-        db.commit()
+        db_.session.commit()
         room_id = min(current_user.uuid+recipient.uuid, recipient.uuid+current_user.uuid)
         data = {
             'id': msg.id,
@@ -224,7 +219,7 @@ def on_message(json):
         
     except Exception as e:
         print(f'Database error when saving message: {e}')
-        db.rollback()
+        db_.session.rollback()
         emit('error', {'message': 'Failed to send message. Please try again.'}, broadcast=False)
         
 @socketio.on('disconnect', namespace='/chat')

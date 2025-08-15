@@ -57,6 +57,6 @@ def test_add_contact_db_write(app, client, auth):
     client.post('/contacts', json={'username': 'island'})
     with app.app_context():
         db = get_db()
-        user = get_user_by_name(db, 'test')
-        contact = get_user_by_name(db, 'island')
-        assert has_contact(db, user, contact)
+        user = get_user_by_name('test')
+        contact = get_user_by_name('island')
+        assert has_contact(user, contact)

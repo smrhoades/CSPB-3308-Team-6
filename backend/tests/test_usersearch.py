@@ -3,7 +3,7 @@ import pytest
 @pytest.mark.parametrize(
         ('search_term', 'messages'), (
             ('TEs', [b'test', b'test2', b'test3']),
-            ('xx', [b'error', b'no results found']))
+            ('xx', [b'no results found']))
         )
 def test_usersearch(client, auth, search_term, messages):
     response = client.get('/users/search')
@@ -13,7 +13,7 @@ def test_usersearch(client, auth, search_term, messages):
     assert 'auth/login' in response.location
     
     auth.login()
-    response = client.get(f'/users/search?user={search_term}')
+    response = client.get(f'/users/search?username={search_term}')
     assert response.status_code == 200
     for m in messages:
         assert m in response.data

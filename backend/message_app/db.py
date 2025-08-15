@@ -1,4 +1,5 @@
-from .data_classes import Base, Contact, User
+from flask_sqlalchemy import SQLAlchemy
+from .data_classes import Contact, User
 from sqlalchemy import create_engine, select, exists
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
@@ -7,42 +8,41 @@ import click
 from flask import g
 from flask import current_app
 
-from pathlib import Path
+from message_app import db_
 
 def get_db():
-	if 'db' not in g:
-		engine = current_app.engine
-		Session = sessionmaker(bind=engine)
-		g.db = Session()
-	return g.db
+	return db_
 
-def close_db(e=None):
-	db = g.pop('db', None)
+# Need to test closing of database if using flask_sqlalchemy?
+# def close_db(e=None):
+# 	db = g.pop('db', None)
 
-	if db is not None:
-		db.close()
+# 	if db is not None:
+# 		db.close()
 
 def init_db():
-	engine = current_app.engine
-	Base.metadata.drop_all(engine)
-	Base.metadata.create_all(engine)
+	""" Create all tables"""
+	db_.drop_all()
+	db_.create_all()
+
+
+from flask.cli import with_appcontext
 
 @click.command('init-db')
+@with_appcontext
 def init_db_command():
 	"""Clear the existing data and create new tables."""
 	init_db()
 	click.echo('Initialized the database.')
 
 def init_app(app):
-	path = app.config['DATABASE']
-	app.engine = create_engine(f"sqlite:///{path}")
-	app.teardown_appcontext(close_db)
+	""" Register database commands with the Flask app."""
 	app.cli.add_command(init_db_command)
 	
-def has_contact(session, user, contact):
+def has_contact(user, contact):
 	""" Checks if user has added contact """
 	try:
-		return session.scalar(
+		return db_.session.scalar(
 				select(
 					exists().where(
 						(Contact.user == user.id) &
@@ -55,23 +55,23 @@ def has_contact(session, user, contact):
 		return False
 		
 
-def get_user_by_name(session, username):
+def get_user_by_name(username):
 	""" Returns User object of username if exists, else None """
 	try:
-		return session.scalar(select(User).where(User.user_name == username))
+		return db_.session.scalar(select(User).where(User.user_name == username))
 	except SQLAlchemyError as e:
 		print(f'Database error in get_user_by_name: {e}')
 		return None
 
-def add_contact(session, user, contact):
+def add_contact(user, contact):
 	try:
 		new_contact = Contact(user=user.id, contact=contact.id)
-		session.add(new_contact)
-		session.commit()
+		db_.session.add(new_contact)
+		db_.session.commit()
 		return {'success': True, 'message': 'Contact added successfully'}
 	except IntegrityError:
-		session.rollback()
+		db_.session.rollback()
 		return {'success': False, 'message': 'Database constraint violation'}
 	except SQLAlchemyError as e:
-		session.rollback()
+		db_.session.rollback()
 		return {'success': False, 'message': f'Database error occurred: {e}'}

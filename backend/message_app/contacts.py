@@ -1,5 +1,6 @@
 from flask import Blueprint, jsonify, request
-from message_app.db import get_db, get_user_by_name, has_contact, add_contact
+from message_app.db import get_user_by_name, has_contact, add_contact
+from message_app import db_
 from message_app.data_classes import User, Contact, Message
 from sqlalchemy import select, or_, and_
 from flask_login import login_required, current_user
@@ -14,14 +15,13 @@ def contacts():
     # factor code blocks into functions and test
     if request.method == 'GET':
         user = current_user
-        db = get_db()
         
         # Retrieve all contacts
         # TO DO: make this a db.py function then import and call
         # Furthermore, should just return the User object for each contact
         contacts_data = []
         query = select(Contact, User).join(User, Contact.contact == User.id).where(Contact.user == user.id)
-        results = db.execute(query).all()
+        results = db_.session.execute(query).all()
         for contact_row, user_row in results:
             contacts_data.append({
                 'contact_id': contact_row.contact,
@@ -39,7 +39,7 @@ def contacts():
                 and_(Message.user_from == Contact.contact, Message.user_to == Contact.user)
             )
         ).where(Contact.user == current_user.id).order_by(Message.created_at.desc()).limit(3)
-        results = db.execute(query).all()
+        results = db_.session.execute(query).all()
         
         # Add current_user to contacts_data to simplify for loop
         contacts_data.append( {'contact_id': user.id, 'contact_name': user.user_name})
@@ -69,22 +69,20 @@ def contacts():
         if username == current_user.user_name:
             data['message'] = 'cannot add self as a contact'
             return jsonify(data), 200
-        
-        db = get_db()
 
         # validate user exists
-        contact = get_user_by_name(db, username)
+        contact = get_user_by_name(username)
         if not contact:
             data['message'] = f'user {username} not found'
             return jsonify(data), 200
 
         # validate user is not already in current user's contacts
-        if has_contact(db, current_user, contact):
+        if has_contact(current_user, contact):
             data['message'] = f'{username} already in contacts'
             return jsonify(data), 200
         
         # update database with new contact
-        result = add_contact(db, current_user, contact)
+        result = add_contact(current_user, contact)
         if result['success'] == True:
             data['message'] = 'success'
             return jsonify(data), 200
