@@ -1,5 +1,5 @@
 from sqlalchemy import select
-from message_app.db import get_db
+from message_app import db_
 from message_app.data_classes import User, Message
 from datetime import datetime, timezone
 from conftest import AuthActions
@@ -79,9 +79,8 @@ def test_socketio_handlers(app, client, auth):
     #    user 'test2' can join the same room
     #--------------------------------------------------------------------------
     with app.app_context():
-        db = get_db()
-        test_user = db.scalar(select(User).where(User.user_name=='test'))
-        test2 = db.scalar(select(User).where(User.user_name=='test2'))
+        test_user = db_.session.scalar(select(User).where(User.user_name=='test'))
+        test2 = db_.session.scalar(select(User).where(User.user_name=='test2'))
     
     room_name = create_room_name(test_user.uuid, test2.uuid)
 
@@ -129,8 +128,7 @@ def test_socketio_handlers(app, client, auth):
     
     # message should be stored in db
     with app.app_context():
-        db = get_db()
-        msg = db.scalar(select(Message).where(Message.user_from==1)
+        msg = db_.session.scalar(select(Message).where(Message.user_from==1)
                 .where(Message.user_to==2)
                 .where(Message.text.startswith("Did you get")))
         
@@ -147,11 +145,10 @@ def test_socketio_handlers(app, client, auth):
     import unittest.mock
     
     with app.app_context():
-        db = get_db()
         room_name = min(test_user.uuid+test2.uuid, test2.uuid+test_user.uuid)
         
         # Mock db.commit to raise an exception
-        with unittest.mock.patch.object(db, 'commit', side_effect=Exception('Database connection lost')):
+        with unittest.mock.patch.object(db_.session, 'commit', side_effect=Exception('Database connection lost')):
             # Attempt to send message
             socketio_client.send([{'recipient_user_name': 'test2',
                                 'message': 'This should fail'}], 
@@ -175,16 +172,15 @@ def test_socketio_handlers(app, client, auth):
 def test_chat_url(app, client, auth):
     with app.test_request_context():
         auth.login()
-        db = get_db()
         
         # Attempt to open chat with contact: 'test2'
-        contact_uuid = db.scalar(select(User.uuid).filter(User.user_name=='test2'))
+        contact_uuid = db_.session.scalar(select(User.uuid).filter(User.user_name=='test2'))
         room_id = create_room_name(current_user.uuid, contact_uuid)
         response = client.get(f'/chat/{room_id}')
         assert response.status_code == 200
         
         # Chat not allowed: 'test' does not have 'island' in contacts
-        contact_uuid2 = db.scalar(select(User.uuid).filter(User.user_name=='island'))
+        contact_uuid2 = db_.session.scalar(select(User.uuid).filter(User.user_name=='island'))
         room_id2 = create_room_name(current_user.uuid, contact_uuid2)
         response = client.get(f'/chat/{room_id2}')
         assert response.status_code == 403
@@ -192,9 +188,8 @@ def test_chat_url(app, client, auth):
 def test_load_chat_history(app, client, auth):
     with app.test_request_context():
         auth.login()
-        db = get_db()
 
-        contact_uuid = db.scalar(select(User.uuid).filter(User.user_name=='test2'))
+        contact_uuid = db_.session.scalar(select(User.uuid).filter(User.user_name=='test2'))
         room_id = create_room_name(current_user.uuid, contact_uuid)
         response = client.get(f'/chat/{room_id}')
         
