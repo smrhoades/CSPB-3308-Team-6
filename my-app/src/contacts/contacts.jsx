@@ -52,8 +52,8 @@ function ContactsList() {
     }
 
     const clickHandler = (contact) => {
-        const s1 = user.uuid+contact.contact_uuid;
-        const s2 = contact.contact_uuid+user.uuid;
+        const s1 = user.uuid+contact.uuid;
+        const s2 = contact.uuid+user.uuid;
         const roomId = s1 < s2 ? s1 : s2;
         navigate(`/chat/${roomId}`);
     }
@@ -74,8 +74,8 @@ function ContactsList() {
             <h1>Contacts</h1>
             <VisualContactsList contacts={contactsData} 
                                 clickHandler={clickHandler}
-                                idProperty="contact_uuid"
-                                displayProperty="contact_name"
+                                idProperty="uuid"
+                                displayProperty="user_name"
             />
         </div>
     )

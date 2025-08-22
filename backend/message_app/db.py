@@ -75,3 +75,13 @@ def add_contact(user, contact):
 	except SQLAlchemyError as e:
 		db_.session.rollback()
 		return {'success': False, 'message': f'Database error occurred: {e}'}
+
+def get_all_contacts(user):
+	try: 
+		contacts_data = []
+		query = select(Contact, User).join(User, Contact.contact == User.id).where(Contact.user == user.id)
+		results = db_.session.execute(query).all()
+		
+	except SQLAlchemyError as e:
+		print(f"got error {e} when getting {user}'s contacts")
+		return []

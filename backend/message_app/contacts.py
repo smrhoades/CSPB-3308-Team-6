@@ -20,14 +20,21 @@ def contacts():
         # TO DO: make this a db.py function then import and call
         # Furthermore, should just return the User object for each contact
         contacts_data = []
+        # query = select(Contact, User).join(User, Contact.contact == User.id).where(Contact.user == user.id)
         query = select(Contact, User).join(User, Contact.contact == User.id).where(Contact.user == user.id)
         results = db_.session.execute(query).all()
-        for contact_row, user_row in results:
-            contacts_data.append({
-                'contact_id': contact_row.contact,
-                'contact_name': user_row.user_name,
-                'contact_uuid': user_row.uuid
-            })
+        print(results)
+        # for contact_row, user_row in results:
+        #     contacts_data.append({
+        #         'contact_id': contact_row.contact,
+        #         'contact_name': user_row.user_name,
+        #         'contact_uuid': user_row.uuid
+        #     })
+        
+        for _, user_row in results:
+            print("appending user_row", user_row.to_dict())
+            contacts_data.append(user_row.to_dict())
+
 
         # Retrieve three most recent messages
         query = select(Contact, User, Message).join(
@@ -42,8 +49,8 @@ def contacts():
         results = db_.session.execute(query).all()
         
         # Add current_user to contacts_data to simplify for loop
-        contacts_data.append( {'contact_id': user.id, 'contact_name': user.user_name})
-        contact_lookup = {contact['contact_id']: contact['contact_name'] for contact in contacts_data}
+        contacts_data.append( {'id': user.id, 'user_name': user.user_name})
+        contact_lookup = {contact['id']: contact['user_name'] for contact in contacts_data}
 
         message_data = []
         for contact_row, user_row, message_row in results:

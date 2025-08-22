@@ -4,7 +4,7 @@ from sqlalchemy import Column, Integer, String, DateTime, func
 from flask_login import UserMixin
 import uuid
 
-from . import db_
+from message_app import db_
 
 class User(db_.Model, UserMixin):
     __tablename__ = 'user_data'
