@@ -94,6 +94,8 @@ def create_app(test_config=None):
     
     return app
 
+app = create_app()
+
 if __name__ == '__main__':
     # Alternative way to run the app - creates a single SocketIO instance
     # Prefer using: flask --app message_app run
