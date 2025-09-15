@@ -10,7 +10,8 @@ from sqlalchemy import select
 
 # Create instance of SocketIO: not yet bound to any Flask app
 # server attribute is None b/c there is no app to serve
-socketio = SocketIO(logger=True, engineio_logger=True, cors_allowed_origins=["http://localhost:5173"])
+# socketio = SocketIO(logger=True, engineio_logger=True, cors_allowed_origins=["http://localhost:5173"])
+socketio = SocketIO(logger=True, engineio_logger=True, cors_allowed_origins=["https://cspb-3308-team-6-3.onrender.com"])
 print(f"SocketIO created at module level: {socketio}")
 db_ = SQLAlchemy()
 
@@ -105,4 +106,5 @@ if __name__ == '__main__':
     #  - sets socketio.server
     #  - begins listening for connections
     #  - blocks and runs the event loop
-    socketio.run(app, debug=True)
+    # socketio.run(app, debug=True)
+    socketio.run(app)
