@@ -24,7 +24,7 @@ function ChatContainer() {
 
     const getMessageHistory = async () => {
         try {
-            const response = await fetch(`http://127.0.0.1:5000/chat/${roomId}`,
+            const response = await fetch(`http://127.0.0.1:10000/chat/${roomId}`,
                 {
                     method: 'GET',
                     headers: {'Content-Type': 'application/json'},

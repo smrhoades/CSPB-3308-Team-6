@@ -12,7 +12,7 @@ export default function NavBar() {
     const handleLogout = async () => {
         setIsLoading(true);
         try {
-            const response = await fetch('http://127.0.0.1:5000/auth/logout', { credentials: 'include' });
+            const response = await fetch('http://127.0.0.1:10000/auth/logout', { credentials: 'include' });
             console.log(response)
             if (response.status == 200) {
                 setIsLoading(false);

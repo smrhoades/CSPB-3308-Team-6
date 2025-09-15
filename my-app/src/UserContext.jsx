@@ -39,7 +39,7 @@ function UserData({ children }) {
     useEffect(() => {
         const checkCurrentUser = async () => {
             try {
-                const response = await fetch('http://127.0.0.1:5000/auth/current-user', {
+                const response = await fetch('http://127.0.0.1:10000/auth/current-user', {
                     method: 'GET',
                     headers: { 'Content-Type': 'application/json' },
                     credentials: 'include' // include session cookers

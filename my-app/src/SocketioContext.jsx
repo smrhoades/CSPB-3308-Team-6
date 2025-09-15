@@ -46,7 +46,7 @@ export function SocketioConnection({ children } ) {
 
     useEffect(() => {
         // establish connection with '/chat' namespace
-        socketRef.current = io('http://127.0.0.1:5000/chat', {
+        socketRef.current = io('http://127.0.0.1:10000/chat', {
           withCredentials: true
         });
         
