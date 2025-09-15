@@ -15,7 +15,7 @@ export default function AddContact() {
 
     const searchUser = async (searchTerm) => {
         try {
-            const response = await fetch(`http://127.0.0.1:5000/users/search?username=${searchTerm}`,
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/users/search?username=${searchTerm}`,
                 {
                     method: 'GET',
                     headers: {'Content-Type': 'application/json'},
@@ -41,7 +41,7 @@ export default function AddContact() {
         if (!confirm(`Add ${contact.user_name} to contacts?`)) return;
 
         try {
-            const response = await fetch(`http://127.0.0.1:5000/contacts`,
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/contacts`,
                 {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},

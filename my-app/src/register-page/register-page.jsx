@@ -12,7 +12,7 @@ function RegisterPage() {
     const requestBody = JSON.stringify({username, password})
     console.log(requestBody)                                    // for testing
     try {
-        const response = await fetch('http://127.0.0.1:10000/auth/register',           // placeholder - should be our file structure or a proxy if we are testing
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/register`,           // placeholder - should be our file structure or a proxy if we are testing
         {
             method: 'POST',                                     
             headers: { 'Content-Type': 'application/json' },    // this is for Flask to understand that the request is a json

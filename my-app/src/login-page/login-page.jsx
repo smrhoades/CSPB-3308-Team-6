@@ -17,7 +17,7 @@ function LoginPage() {
         const requestBody = JSON.stringify({username, password})
         console.log(requestBody)                                                // for testing
         try {
-            const response = await fetch('http://127.0.0.1:10000/auth/login',    // placeholder
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/login`,    // placeholder
             {
                 method: 'POST',                                     
                 headers: { 'Content-Type': 'application/json' },                // this is for Flask to understand that the request is a json
