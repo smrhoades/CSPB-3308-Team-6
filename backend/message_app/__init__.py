@@ -61,7 +61,9 @@ def create_app(test_config=None):
         pass
     
     # Allow requests from React
-    CORS(app, supports_credentials=True, origins=["http://localhost:5173"])
+    # CORS(app, supports_credentials=True, origins=["http://localhost:5173"])
+    CORS(app, supports_credentials=True, origins=["https://cspb-3308-team-6-3-frontend.onrender.com/"])
+    
     # print("CORS configured")
 
     # Initialize Flask-Login
@@ -96,6 +98,7 @@ def create_app(test_config=None):
     return app
 
 app = create_app()
+socketio.run(app)
 
 if __name__ == '__main__':
     # Alternative way to run the app - creates a single SocketIO instance
