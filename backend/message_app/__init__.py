@@ -98,7 +98,7 @@ def create_app(test_config=None):
     return app
 
 app = create_app()
-socketio.run(app)
+socketio.run(app, allow_unsafe_werkzeug=True)
 
 if __name__ == '__main__':
     # Alternative way to run the app - creates a single SocketIO instance
